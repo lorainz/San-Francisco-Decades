@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>{% block title %}{% endblock %}</title>
+    
+    <meta charset="UTF-8">
+
+    <!-- style sheets -->
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <!-- import icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+
+    <style>
+        footer, body,h1 {font-family: "Raleway", Arial, sans-serif}
+        h1 {letter-spacing: 6px}
+    </style>
+
+    {% block styles %}
+    <!-- style sheets -->
+    {% endblock %}
+
+    <!-- React & Babel -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
+	<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+	{% block js %}
+    <!-- Include any page-specific Javascript using this block. -->
+	{% endblock %}
+
+</head>
+<body>
+
+	<!-- Flash message -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <p><strong>{{ message }}</strong></p>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+	{% block body %}
+    <!-- Include the page's content with this block. -->
+	{% endblock %}
+
+</body>
+</html>
+

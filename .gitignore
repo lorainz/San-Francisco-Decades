@@ -1,0 +1,5 @@
+env/
+*.pyc
+secret*
+archive
+db_versions

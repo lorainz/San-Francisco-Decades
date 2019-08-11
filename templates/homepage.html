@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}San Francisco Decades {% endblock %}
+
+{% block js %}
+	<script src="/static/js/app.jsx" type="text/jsx"></script>
+{% endblock %}
+
+
+{% block body %}
+
+    <!-- !PAGE CONTENT! -->
+    <div class="content" style="max-width:1600px">
+
+        <!-- Header -->
+        <header class="panel center opacity" style="padding:50px 16px 20px 16px">
+            <h1 class="xlarge">San Francisco</h1>
+            <h1>Decades</h1>
+            <div class="padding-20">
+                <div class="bar border">
+                  <a href="/" class="bar-item button">  About </a>
+                  <a href="/map" class="bar-item button">  Map </a>
+                  <a href="/likes" class="bar-item button light-grey"> Likes </a>
+                  <a href="/login" class="bar-item button">Login </a>
+                  <a href="/register" class="bar-item button">Register</a>
+                </div>
+            </div>
+        </header>
+
+      <!-- ROOT --><!-- 
+      <div id="root"></div>
+
+      <h1>Registration Form</h1>
+      <p><a href="/register">Register here!</a></p>
+      <hr> -->
+
+      <!-- Slide -->
+      <div class="slidecontainer">
+        <div id="slideHeader" class="xlarge">Pick a decade:
+          <sub id="slideAmount"></sub>
+        </div>
+        <input id="slide" type="range" min="1960" max="2000" step="10" value="1960">
+      </div>
+
+      <!-- Map -->
+      <h1></h1>
+      <div id="map"></div>
+
+
+
+      <!-- Results -->
+      <div class="main content padding" style="max-width:1600px;margin-top:50px">
+        <!-- Display result count -->
+        <div id="resultsCount"></div>
+
+        <!-- Display Results -->
+        <div id="restaurants"></div>
+
+      </div>
+
+
+      <!-- Slide Script -->
+      <script>
+        //Set variables
+        var slide = document.getElementById('slide') // slide
+        var slideAmt = document.getElementById("slideAmount") //slideAmt
+
+        //When the page loads, load results
+        window.addEventListener("DOMContentLoaded", async function(event) {
+
+          //Set default search decade = 1960, and display
+          slideAmt.innerHTML = "1960";
+
+          //Url string used to fetch results
+          url_string = "/inputs?decade=" + slideAmt.innerHTML;
+
+          //Show search results, the function will wait for this to finish before ending 
+          await display_server_result(url_string);  
+
+          // console.log("loaded")
+          var markers = [
+            {
+              coordinates:{lat:37.7920, lng:-122.4601},
+              iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+              content:'<h1>content 1</h1>'
+            },
+            {
+              coordinates:{lat:37.7920, lng:-122.4401},
+              iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+              content:'<h1>content 2</h1>'
+            },
+            {
+              coordinates:{lat:37.7920, lng:-122.4501},
+              iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+              content:'<h1>content 3</h1>'
+            }
+
+          ];
+
+          await addMarker(markers[0])
+
+        });
+
+        //When someone toggles the year, update results
+        slide.onchange = async function() {
+          // Update slide amount
+          slideAmt.innerHTML = this.value;
+
+          //Url string used to fetch results
+          url_string = "/inputs?decade=" + slideAmt.innerHTML;
+
+          await display_server_result(url_string);  
+
+        //end slide onchange
+        }
+
+
+        function initMap(){
+          // Map zoom and center
+          var options = {
+            zoom:14,
+            center: {lat:37.7920, lng:-122.4501}
+          }
+
+          // Display map
+          var map = new google.maps.Map(document.getElementById('map'), options);
+
+        }
+          
+        // Function for adding marker
+        function addMarker(props){ 
+          var marker = new google.maps.Marker({
+            //Coordinates is a dictionary
+            position:props.coordinates, 
+            map:map,
+            icon:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
+          });
+
+          // Check content, add info window
+          if(props.content){
+            var infoWindow = new google.maps.InfoWindow({
+              content:props.content
+            });
+
+            marker.addListener('click', function(){
+              infoWindow.open(map, marker);
+            });
+          }
+
+          console.log("marker added")
+        }
+
+        async function display_server_result(url_string) {
+          const response = await fetch(url_string)
+          .then(response => response.json())
+          .then(data => { 
+            set_HTML_output(data)
+            return data
+          })
+          return response 
+        }
+
+
+        function set_HTML_output(data){
+          let output = ''
+
+              let i = 1
+              for(var restaurant in data) {
+
+                //Beginning of row, add to output
+                if((i - 1) % 5 == 0 || i == 1) {
+                  output += `
+                  <div class="row-padding padding-16 w3-col l3 m6 w3-margin-bottom" id="food">
+                  `
+                  // console.log(i)
+                }
+
+                // }
+                if(data[restaurant]['image_url'] == '') {
+                  data[restaurant]['image_url'] = '/static/img/imagenotfound.png'
+                }
+
+                //Add restaurant div to output
+                output += `
+                <div class="quarter">
+                    <a href="${data[restaurant]['url']}"><img src="${data[restaurant]['image_url']}" class ="food-pic" alt="" style="width:100%"></a>
+                    <h3>${data[restaurant]['dba_name']}, ${data[restaurant]['dba_start_date']}</h3>
+                    <p>Reviews: ${data[restaurant]['review_count']}, Rating: ${data[restaurant]['rating']}, Price: ${data[restaurant]['price']}</p>
+                    <p>${data[restaurant]['categories']}, ${data[restaurant]['neighborhoods_analysis_boundaries']}</p>
+                </div>
+                `
+
+                //End of row, add to output
+                if(i % 5 == 0) {
+                  output += `
+                    </div>
+                  `
+                  // console.log(i)
+                }
+
+                i += 1;
+
+              }
+
+              //End of results
+              output += `
+              </div>
+              `
+
+              //Update restaurants div
+              document.getElementById('restaurants').innerHTML = output;
+
+              var resultsCount = Object.keys(data).length;
+
+              document.getElementById('resultsCount').innerHTML = `
+                <h1 class="xlarge">${resultsCount} results </h1>
+              `;
+        }
+
+      </script>
+
+
+    <!-- <script async defer
+  src="https://maps.googleapis.com/maps/api/js?key={google_api_key}&callback=initMap">
+    </script> -->
+
+
+{% endblock %}
