@@ -3,22 +3,29 @@ class App extends React.Component {
     super(props);
     this.state = {
       decade: null,
-      // currentPage: 0, // this will tell me where i am array or map to show component - pageheader or decadeselector
-      // pages: [<DecadeSelector/>, <Map/>]
+      currentpage: 0,
+      pages: [<DecadeSelector />, "holder map", <RandomGenerator />, <Login />, <Register />],
+      pageIdx: {
+        'About': 0,
+        'Map': 1,
+        'Random': 2,
+        'Login' : 3,
+        'Register': 4
+      }, 
     };
-    // this.changepage = this.changepage.bind(this) // 
+    this.changePage = this.changePage.bind(this) // 
   }
 
-  // changepage(pageNum) {
-  //   this.setstate.currentPage
-  // }
+  changePage(route) {
+    this.setState({currentpage: this.state.pageIdx[route]});
+  }
   
   render() {
     return (
       <div className="page">
-        <PageHeader />
-        <DecadeSelector />
-        <Map />
+        <PageHeader 
+        changePage={this.changePage}/>
+        {this.state.pages[this.state.currentpage]}
       </div>
     )
     // changepage={this.changepage} // these are props
@@ -26,29 +33,57 @@ class App extends React.Component {
   }
 }
 
-class Map extends React.Component {
-  constructor(props) {
-    super(props);
-  };
+// class Map extends React.Component {
+//   constructor(props) {
+//     super(props);
+//   };
 
-  initMap(){
-    // Map zoom and center
-    var options = {
-      zoom:14,
-      center: {lat:37.7920, lng:-122.4501}
-    }
-    // Display map
-    // var map = new google.maps.Map(document.getElementById('map'), options);
-  }
+//   initMap(){
+//     // Map zoom and center
+//     var options = {
+//       zoom:14,
+//       center: {lat:37.7920, lng:-122.4501}
+//     }
+//     // Display map
+//     // var map = new google.maps.Map(document.getElementById('map'), options);
+//   }
 
-}
+// }
 
 
 class PageHeader extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      className: "bar-item button",
+      classNameGrey: "bar-item button light-grey"
+      // buttonStyle: {'backgroundColor': 'black', 'color':'white', 'width':'150px', 'height':'40px'},
+    };
+    this.menuButtonClicked = this.menuButtonClicked.bind(this);
+    this.renderMenuButton = this.renderMenuButton.bind(this);
+  }
+  
+  menuButtonClicked(route) {
+    this.props.changePage(route) 
+    //change state of parent component, to track which page we're on
+    //rendering will happen in app component, calls the function in the parent component/app
+  }
+  
+  renderMenuButton(route) {
+    return (
+      <DecadeButton 
+        value={route} 
+        className={this.state.className} 
+        style={this.state.buttonStyle} 
+        onClick={() => this.menuButtonClicked(route)} //it should only do the action the thing that has been clicked 
+      />
+    )
+  }
 
-  // clicked() {
-  //   this.props.chnagepage() // change the state of the parent to keep track of what parent we're on, and rendering change will happen in app
-  // } //this allows the pageheader to call a function from the parent/app to call a function that changes the app setstate.currentpage
+  //When decade button is clicked, update results using getData
+  handleClick(route) {
+    alert('clicked ' + route)
+  }
 
   render() {
     return (
@@ -58,16 +93,34 @@ class PageHeader extends React.Component {
           <h1>Decades</h1>
           <div className="padding-20">
               <div className="bar border">
-                <a href="/" className="bar-item button">  About </a>
-                <a href="/map" className="bar-item button">  Map </a>
-                <a href="/likes" className="bar-item button light-grey"> Likes </a>
-                <a href="/login" className="bar-item button">Login </a>
-                <a href="/register" className="bar-item button">Register</a>
+                {this.renderMenuButton('About')}
+                {this.renderMenuButton('Map')}
+                {this.renderMenuButton('Random')}
+                {this.renderMenuButton('Login')}
+                {this.renderMenuButton('Register')}
               </div>
           </div>
         </header>
       </div>
     );
+  }
+}
+
+
+class MenuButton extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <button 
+        className={this.props.className}
+        type="submit" 
+        value={this.props.value} 
+        style={this.props.style}
+      >
+      </button>
+    )
   }
 }
 
@@ -202,6 +255,105 @@ class Restaurant extends React.Component {
       </div>
     )
   }
+}
+
+class RandomGenerator extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div className="randomGenerator panel center opacity">
+        <h1>RANDOM RESULT</h1>
+      </div>
+    )
+  }
+
+}
+
+class Login extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: "",
+      password: ""
+    }
+  }
+
+  render() {
+    return (
+      <div className="Login panel center">
+        <div className="opacity">
+          <h1>Login</h1>
+          <hr></hr>
+        </div>
+
+        <form action="/">
+          <div className="imgcontainer">
+            <img src="https://cdn.akc.org/Marketplace/Breeds/Pembroke_Welsh_Corgi_SERP.jpg" alt="corgi" className="loginImage" style={{ width: '500px' }}/>
+          </div>
+
+          <div className="container opacity">
+            <label for="email"><b>Username</b></label>
+            <input type="text" placeholder="Enter Email" name="email" required></input>
+
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" required></input>
+
+            <button type="submit" className="submitButton">Login</button>
+          </div>
+
+        </form>
+      </div>
+    )
+  }
+
+}
+
+class Register extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state ={
+      email:"",
+      password:""
+    }
+  }
+
+  render() {
+    return (
+      <div className="register panel center opacity">
+        <form action="/">
+          <h1>Register</h1>
+          <p>Please fill in the form below.</p>
+          <hr></hr>
+
+          <div className="imgcontainer">
+            <img src="https://img.buzzfeed.com/buzzfeed-static/static/2014-09/23/12/enhanced/webdr10/longform-original-22600-1411489016-22.jpg?downsize=700%3A%2A&output-quality=auto&output-format=auto&output-quality=auto&output-format=auto&downsize=360:*" alt="corgi" className="loginImage" style={{ width: '200px', opacity: '1' }}/>
+          </div>
+
+          <div className="container">
+            <label for="email"><b>Username</b></label>
+            <input type="text" placeholder="Enter Email" name="email" required></input>
+
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" required></input>
+
+            <label for="password-repeat"><b>Password</b></label>
+            <input type="password" placeholder="Repeat Password" name="password-repeat" required></input>
+
+            <button type="submit" className="registerButton">Register</button>
+          </div>
+          
+          <div className="container signin">
+            <p>Already have an account? ADD link/BUTTON</p>
+          </div>
+
+        </form>
+      </div>
+    )
+  }
+
 }
 
 
