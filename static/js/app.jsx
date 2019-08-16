@@ -260,16 +260,99 @@ class Restaurant extends React.Component {
 class RandomGenerator extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      randomResult: {},
+      buttonStyle: {'backgroundColor': 'black', 'color':'white', 'width':'150px', 'height':'40px'},
+      // buttonTracker: {
+      //   1960: buttonStyle,
+      //   1970: buttonStyle,
+      //   1980: buttonStyle,
+      //   1990: buttonStyle,
+      //   2000: buttonStyle
+      // }
+    };
+    this.handleClick = this.handleClick.bind(this)
+    this.getRandomResult = this.getRandomResult.bind(this)
+    this.renderResultsData = this.renderResultsData.bind(this)
   }
+
+  handleClick() {
+    this.getRandomResult()
+    alert('clicked ')
+  }
+
+  getRandomResult() {
+    const urlString = '/random'
+    axios.get(urlString)
+    .then(response => {
+      console.log(response.data)
+      this.setState({randomResult: response.data})
+    })
+    .catch(error => {console.log(error)})
+  }
+
+  renderResultsData() {
+    return (
+      <div className="restaurant"> 
+        Results: {Object.keys(this.state.randomResult).length}
+        {
+          Object.keys(this.state.randomResult).map((key) => ( 
+            <div key={key}> 
+              <a href={this.state.randomResult[key]['url']}>
+                <img src={this.state.randomResult[key]['image_url']} className ="food-pic" alt="" style={{'width':'20%'}} />
+              </a>
+              <p>{this.state.randomResult[key]['dba_name']}</p>
+              Year: {this.state.randomResult[key]['dba_start_date']}
+              Name: {this.state.randomResult[key]['name']}
+              Neighborhood: {this.state.randomResult[key]['neighborhoods_analysis_boundaries']}
+              Categories: {this.state.randomResult[key]['categories']}
+              Coordinates: {this.state.randomResult[key]['coordinates']}
+              Price: {this.state.randomResult[key]['price']}
+              Rating: {this.state.randomResult[key]['rating']}
+              Review count: {this.state.randomResult[key]['review_count']}
+              
+            </div> 
+          ))
+        }
+        
+      </div>
+    )
+  }
+
 
   render() {
     return (
       <div className="randomGenerator panel center opacity">
         <h1>RANDOM RESULT</h1>
+        <RandomButton 
+        value="Get Random Result"
+        style={this.state.buttonStyle} 
+        onClick={() => this.handleClick()} //it should only do the action the thing that has been clicked 
+        />
+        {this.renderResultsData()}
       </div>
     )
   }
 
+}
+
+class RandomButton extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <button 
+        className="randomButton" 
+        type="submit" 
+        // value={this.props.value} 
+        style={this.props.style}
+        onClick={this.props.onClick}
+      >
+        {this.props.value}
+      </button>
+    )
+  }
 }
 
 class Login extends React.Component {

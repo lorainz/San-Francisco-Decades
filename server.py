@@ -13,6 +13,8 @@ from secret import app_key
 
 import json
 import re
+from random import randrange
+
 
 app = Flask(__name__)
 # Required to use Flask sessions and the debug toolbar
@@ -69,19 +71,60 @@ def inputs():
     # return str(businesses)
     return jsonify(businesses)
 
-@app.route('/categories') 
-def categories(): 
-    result = (db.session.query(Review.categories).all())
+@app.route('/random') 
+def random(): 
 
-    categories = []
-    for r in result:
-        for i in r:
-            sub_categories = i.split(",")
-            for sub_category in sub_categories:
-                if sub_category.strip() not in categories and sub_category.strip() != "":
-                    categories.append(sub_category.strip())
+    all_ids = (db.session.query(Review.ttxid).all())
+    # print(len(all_ids), all_ids[len(all_ids)-1][0])
 
-    return jsonify(sorted(categories))
+    random_idx = randrange(len(all_ids))
+    random_ttxid = all_ids[random_idx][0]
+
+    result = (db.session
+        .query(
+        Business.ttxid, 
+        Business.dba_name, 
+        Business.dba_start_date, 
+        Business.location_start_date, 
+        Business.neighborhoods_analysis_boundaries, 
+        Review.name, 
+        Review.image_url, 
+        Review.url, Review.
+        review_count, 
+        Review.categories, 
+        Review.rating, 
+        Review.price,
+        Business.longitude,
+        Business.latitude,
+        Review.longitude,
+        Review.latitude
+        )
+        .join(Review)
+        .filter(
+        Business.ttxid == random_ttxid, 
+        )
+        .order_by(Business.dba_start_date)
+        .all()
+    )
+
+    businesses = convert_list_to_dict(result)
+
+    # return str(businesses)
+    return jsonify(businesses)
+
+# @app.route('/categories') 
+# def categories(): 
+#     result = (db.session.query(Review.categories).all())
+
+#     categories = []
+#     for r in result:
+#         for i in r:
+#             sub_categories = i.split(",")
+#             for sub_category in sub_categories:
+#                 if sub_category.strip() not in categories and sub_category.strip() != "":
+#                     categories.append(sub_category.strip())
+
+#     return jsonify(sorted(categories))
 
 #convert query result list into a dictionary
 def convert_list_to_dict(result):
@@ -94,6 +137,11 @@ def convert_list_to_dict(result):
                                 result[i][14],
                                 result[i][15])
 
+        if result[i][10] == None:
+            rating_score = 0
+        else:
+            rating_score = result[i][10]
+
         new_dict[i] = {
             'ttxid': result[i][0],
             'dba_name': result[i][1],
@@ -105,7 +153,7 @@ def convert_list_to_dict(result):
             'url': result[i][7],
             'review_count': result[i][8],
             'categories': result[i][9],
-            'rating': float(result[i][10]),
+            'rating': float(rating_score),
             'price': result[i][11],
             'coordinates': coordinates 
         }
