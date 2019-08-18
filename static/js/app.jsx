@@ -1,10 +1,20 @@
+// import ResultMap from './components/resultMap';
+
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      results: [],
       decade: null,
       currentpage: 0,
-      pages: [<DecadeSelector />, "holder map", <RandomGenerator />, <Login />, <Register />],
+      pages: [
+        <DecadeSelector/>,  
+        // <DecadeSelector results={this.state.results}/>, 
+        <ResultMap />, 
+        <RandomGenerator />, 
+        <Login />, 
+        <Register changePage={this.changePage}/>
+      ],
       pageIdx: {
         'About': 0,
         'Map': 1,
@@ -16,9 +26,15 @@ class App extends React.Component {
     this.changePage = this.changePage.bind(this) // 
   }
 
+  //This is passed to PageHeader to be able to call this function when a menuButton is clicked
   changePage(route) {
     this.setState({currentpage: this.state.pageIdx[route]});
+    console.log(this.state.pageIdx, route)
   }
+
+  // changeAnything(state) {
+  //   this.setState(state)
+  // }
   
   render() {
     return (
@@ -28,27 +44,21 @@ class App extends React.Component {
         {this.state.pages[this.state.currentpage]}
       </div>
     )
-    // changepage={this.changepage} // these are props
-    //{this.state.pages[this.state.currentPage]} these go in the return ()
   }
 }
 
-// class Map extends React.Component {
-//   constructor(props) {
-//     super(props);
-//   };
 
-//   initMap(){
-//     // Map zoom and center
-//     var options = {
-//       zoom:14,
-//       center: {lat:37.7920, lng:-122.4501}
-//     }
-//     // Display map
-//     // var map = new google.maps.Map(document.getElementById('map'), options);
-//   }
+class ResultMap extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
-// }
+  render() {
+    return (
+      <div className="resultMap">Map Page</div>
+    );
+  }
+}
 
 
 class PageHeader extends React.Component {
@@ -64,27 +74,27 @@ class PageHeader extends React.Component {
   }
   
   menuButtonClicked(route) {
-    this.props.changePage(route) 
     //change state of parent component, to track which page we're on
     //rendering will happen in app component, calls the function in the parent component/app
+    this.props.changePage(route) 
   }
   
   renderMenuButton(route) {
+    //when the menu button is clicked, we pass the route to the function changePage to change the page in App
     return (
       <DecadeButton 
         value={route} 
         className={this.state.className} 
         style={this.state.buttonStyle} 
-        onClick={() => this.menuButtonClicked(route)} //it should only do the action the thing that has been clicked 
+        onClick={() => this.menuButtonClicked(route)} 
+        //This is a function callback, closure 
+        //it should only call the function when the button is clicked, and allows us to pass a function
+        // otherwise this function would be called immediately if used this.menuButtonClicked
       />
     )
   }
 
-  //When decade button is clicked, update results using getData
-  handleClick(route) {
-    alert('clicked ' + route)
-  }
-
+  //Page Title and all menu buttons
   render() {
     return (
       <div className="header">
@@ -111,6 +121,8 @@ class MenuButton extends React.Component {
   constructor(props) {
     super(props);
   }
+
+  //Props = Page Header
   render() {
     return (
       <button 
@@ -294,7 +306,6 @@ class RandomGenerator extends React.Component {
   renderResultsData() {
     return (
       <div className="restaurant"> 
-        Results: {Object.keys(this.state.randomResult).length}
         {
           Object.keys(this.state.randomResult).map((key) => ( 
             <div key={key}> 
@@ -360,8 +371,61 @@ class Login extends React.Component {
     super(props);
     this.state = {
       email: "",
-      password: ""
+      password: "",
+      status: false,
     }
+    this.handleEmailChange = this.handleEmailChange.bind(this);
+    this.handlePasswordChange = this.handlePasswordChange.bind(this);
+    this.loginUser = this.loginUser.bind(this);
+    this.validate = this.validate.bind(this);
+    this.loginUserPost = this.loginUserPost.bind(this);
+  }
+
+  handleEmailChange(event) {
+    this.setState({email: event.target.value});
+    console.log(this.state.email)
+  }
+
+  handlePasswordChange(event) {
+    this.setState({password: event.target.value});
+    console.log(this.state.password)
+  }
+
+  loginUser(e){
+    e.preventDefault();
+    console.log('login user')
+    
+    // check for " or ' in inputs
+    if (this.validate(this.state.email)) {
+      alert("Invalid email")
+    } else if (this.validate(this.state.password)) {
+      alert("Invalid password")
+    } else {
+      // this.loginUserPost()
+    }
+
+  }
+
+  validate(input) {
+    for (let i=0; i < input.length; i++) {
+      if (input[i] == "\"" || input[i] == "\'") {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  loginUserPost() {
+    axios.post('/register',{
+      email: this.state.email,
+      password: this.state.password
+    })
+    .then(response => {
+      console.log(response.data)
+    })
+    .catch(error => {
+      console.log(error)
+    })
   }
 
   render() {
@@ -372,19 +436,20 @@ class Login extends React.Component {
           <hr></hr>
         </div>
 
-        <form action="/">
+        <form>
           <div className="imgcontainer">
             <img src="https://cdn.akc.org/Marketplace/Breeds/Pembroke_Welsh_Corgi_SERP.jpg" alt="corgi" className="loginImage" style={{ width: '500px' }}/>
           </div>
 
           <div className="container opacity">
             <label for="email"><b>Username</b></label>
-            <input type="text" placeholder="Enter Email" name="email" required></input>
+            <input type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
 
             <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required></input>
+            <input type="password" placeholder="Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
 
-            <button type="submit" className="submitButton">Login</button>
+            <button type="submit" className="submitButton" onClick={this.loginUser}>Login</button>
+            <p>Click here to Register</p>
           </div>
 
         </form>
@@ -397,16 +462,93 @@ class Login extends React.Component {
 class Register extends React.Component {
   constructor(props) {
     super(props);
-    this.state ={
-      email:"",
-      password:""
+    this.state = {
+      email: "",
+      password: "",
+      repeatPassword: "",
+      status: false,
     }
+    this.handleEmailChange = this.handleEmailChange.bind(this);
+    this.handlePasswordChange = this.handlePasswordChange.bind(this);
+    this.handleSecondPasswordChange = this.handleSecondPasswordChange.bind(this);
+    this.registerUser = this.registerUser.bind(this);
+    this.registerUserPost = this.registerUserPost.bind(this);
+    this.menuButtonClicked = this.menuButtonClicked.bind(this);
+    this.renderMenuButton = this.renderMenuButton.bind(this);
+  }
+
+  handleEmailChange(event) {
+    this.setState({email: event.target.value});
+    console.log(this.state.email)
+  }
+
+  handlePasswordChange(event) {
+    this.setState({password: event.target.value});
+    console.log(this.state.password)
+  }
+
+  handleSecondPasswordChange(event) {
+    this.setState({repeatPassword: event.target.value});
+    console.log(this.state.repeatPassword)
+  }
+
+  registerUser(e){
+    e.preventDefault();
+    console.log('register user')
+    // let valid_email = "/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/"
+    // let valid_email = RegExp('[^@]+@[^\.]+\..+\.com');
+    let gmail_regex = RegExp('[^@]+@gmail\.com');
+    let yahoo_regex = RegExp('[^@]+@yahoo\.com');
+    let hotmail_regex = RegExp('[^@]+@hotmail\.com');
+    let valid_email = gmail_regex.test(this.state.email) || yahoo_regex.test(this.state.email) || hotmail_regex.test(this.state.email)
+    let valid_password = this.state.password == this.state.repeatPassword
+
+    console.log(valid_email, valid_password)
+
+    if (valid_email && valid_password) {
+      this.registerUserPost();
+    } else if (!valid_password){
+      alert("Passwords do not match.")
+    } else if (!valid_email) {
+      alert("Invalid email entered. Please try again.")
+    }
+
+  }
+
+  registerUserPost() {
+    axios.post('/register',{
+      email: this.state.email,
+      password: this.state.password
+    })
+    .then(response => {
+      console.log(response.data)
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  }
+
+  menuButtonClicked(route) {
+    this.props.changePage(route) 
+    //change state of parent component, to track which page we're on
+    //rendering will happen in app component, calls the function in the parent component/app
+  }
+  
+  renderMenuButton(route) {
+    return (
+      <DecadeButton 
+        value={route} 
+        className={this.state.className} 
+        style={this.state.buttonStyle} 
+        onClick={() => this.menuButtonClicked(route)} //it should only do the action the thing that has been clicked 
+      />
+    )
   }
 
   render() {
     return (
       <div className="register panel center opacity">
-        <form action="/">
+        <form>
           <h1>Register</h1>
           <p>Please fill in the form below.</p>
           <hr></hr>
@@ -417,19 +559,19 @@ class Register extends React.Component {
 
           <div className="container">
             <label for="email"><b>Username</b></label>
-            <input type="text" placeholder="Enter Email" name="email" required></input>
+            <input type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
 
             <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required></input>
+            <input type="password" placeholder="Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
 
-            <label for="password-repeat"><b>Password</b></label>
-            <input type="password" placeholder="Repeat Password" name="password-repeat" required></input>
+            <label for="password-repeat"><b>Enter Password again:</b></label>
+            <input type="password" placeholder="Enter Password" name="password" value={this.state.repeatPassword} onChange={this.handleSecondPasswordChange} required></input>
 
-            <button type="submit" className="registerButton">Register</button>
+            <button type="submit" className="registerButton" onClick={this.registerUser}>Register</button>
           </div>
           
           <div className="container signin">
-            <p>Already have an account? ADD link/BUTTON</p>
+            <p>Already have an account? {this.renderMenuButton('Login')}</p>
           </div>
 
         </form>

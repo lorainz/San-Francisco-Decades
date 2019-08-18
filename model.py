@@ -143,12 +143,12 @@ class User(db.Model):
                         nullable=False)
     # age = db.Column(db.Integer, 
     #                     nullable=True)
-    zipcode = db.Column(db.String(5), 
-                        nullable=False)
+    # zipcode = db.Column(db.String(5), 
+    #                     nullable=False)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
-        return f"<User user_id={self.user_id} email={self.email} age={self.age} zip={self.zipcode}>"
+        return f"<User user_id={self.user_id} email={self.email}>"
 
 class Like(db.Model):
     """Like for business by users"""

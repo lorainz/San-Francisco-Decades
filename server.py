@@ -29,15 +29,15 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/', methods=['GET', 'POST'])
 def index():
     """Homepage."""
-
     return render_template("homepage-react.html")
 
 @app.route('/inputs') 
 def inputs(): 
+    """Generate results by decade."""
     search = request.args.get('decade')
     start = search + '-01-01'
     end = str(int(search) + 10) + '-01-01'
-    print(end)
+    # print(end)
 
     result = (db.session
         .query(
@@ -73,7 +73,7 @@ def inputs():
 
 @app.route('/random') 
 def random(): 
-
+    """Generate random result."""
     all_ids = (db.session.query(Review.ttxid).all())
     # print(len(all_ids), all_ids[len(all_ids)-1][0])
 
@@ -101,13 +101,12 @@ def random():
         )
         .join(Review)
         .filter(
-        Business.ttxid == random_ttxid, 
-        )
+        Review.ttxid==random_ttxid)
         .order_by(Business.dba_start_date)
         .all()
     )
 
-    businesses = convert_list_to_dict(result)
+    businesses = convert_one_to_dict(result)
 
     # return str(businesses)
     return jsonify(businesses)
@@ -142,6 +141,11 @@ def convert_list_to_dict(result):
         else:
             rating_score = result[i][10]
 
+        if result[i][6] == None:
+            img_url = './static/img/imagenotfound.png'
+        else:
+            img_url = result[i][6]
+
         new_dict[i] = {
             'ttxid': result[i][0],
             'dba_name': result[i][1],
@@ -149,7 +153,7 @@ def convert_list_to_dict(result):
             'location_start_date': result[i][3].year,
             'neighborhoods_analysis_boundaries': result[i][4],
             'name': result[i][5],
-            'image_url': result[i][6],
+            'image_url': img_url,
             'url': result[i][7],
             'review_count': result[i][8],
             'categories': result[i][9],
@@ -157,7 +161,37 @@ def convert_list_to_dict(result):
             'price': result[i][11],
             'coordinates': coordinates 
         }
+    
+    return new_dict;
 
+def convert_one_to_dict(result):
+    new_dict = {}
+
+    coordinates = coalesce(result[0][12], 
+                            result[0][13],
+                            result[0][14],
+                            result[0][15])
+
+    if result[0][10] == None:
+        rating_score = 0
+    else:
+        rating_score = result[0][10]
+
+    new_dict["0"] = {
+        'ttxid': result[0][0],
+        'dba_name': result[0][1],
+        'dba_start_date': result[0][2].year,
+        'location_start_date': result[0][3].year,
+        'neighborhoods_analysis_boundaries': result[0][4],
+        'name': result[0][5],
+        'image_url': result[0][6],
+        'url': result[0][7],
+        'review_count': result[0][8],
+        'categories': result[0][9],
+        'rating': float(rating_score),
+        'price': result[0][11],
+        'coordinates': coordinates 
+    }
 
         # if new_dict['image_url'] == None:
         #     new_dict['url'] = '/static/img/imagenotfound.png'
@@ -173,58 +207,65 @@ def coalesce(longitude1, latitude1, longitude2, latitude2):
     else:
         return [None, None]
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     """Log in user"""
-#     email = request.form.get('email')
-#     password = request.form.get('password')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Log in user"""
+    email = request.form.get('email')
+    password = request.form.get('password')
 
-#     registered_user = User.query.filter(User.email == email).first()
-#     # print(registered_user.email, registered_user.password, registered_user.user_id)
+    # registered_user = User.query.filter(User.email == email).first()
+    # # print(registered_user.email, registered_user.password, registered_user.user_id)
 
-#     if session['user_id'] != None:
-#         flash('You\'re already logged in')
-#     else:
-#         if registered_user != None: 
-#             if registered_user.email == email and registered_user.password == password:
-#                 session['user_id'] = registered_user.user_id
-#                 print(session['user_id'])
-#                 flash('You\'re logged in')
-#         else:
-#             flash('Log in information did not match')
+    # if session['user_id'] != None:
+    #     flash('You\'re already logged in')
+    # else:
+    #     if registered_user != None: 
+    #         if registered_user.email == email and registered_user.password == password:
+    #             session['user_id'] = registered_user.user_id
+    #             print(session['user_id'])
+    #             flash('You\'re logged in')
+    #     else:
+    #         flash('Log in information did not match')
 
-#     return redirect('/')
+    return redirect('/')
 
-# @app.route('/register', methods=['GET', 'POST'])
-# def register():
-#     """Register user"""
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """Register user"""
+    # if request.method == "GET":
+    #     email = request.form.get('email')
+    #     password = request.form.get('password')
 
-#     email = request.form.get('email')
-#     password = request.form.get('password')
-#     zipcode = request.form.get('zipcode')
-#     print("email", email)
+    if request.method == "POST":
+        # print('GET EMAIL AND PASSWORD')
+        # print(request.data); # returns byte string literal
+        response = request.json
+        print(response); # json
+        email = request.json['email']
+        password = request.json['password']
+        print(email, password)
 
-#     registered_user = User.query.filter(User.email == email).first()
-#     print(registered_user, email)
+    registered_user = User.query.filter(User.email == email).first()
+    print(registered_user, email)
 
-#     if email == None:
-#         return render_template('registration.html')
-#     elif not validate_inputs(email, password, zipcode):
-#         if not validate_email(email):
-#             flash("Please enter valid email address.")
-#         if not validate_password(password):
-#             flash("Please enter valid password.")
-#         if not validate_zipcode(zipcode):
-#             flash("Please enter valid zip code.")
-#         return render_template('registration.html')
-#     elif registered_user != None:
-#         flash("You've already registered. Please log in")
-#         return redirect('/')
-#     else:
-#         register_user(email, password, zipcode)
-#         return redirect('/')
+    # if email == None:
+    #     return render_template('registration.html')
+    # elif not validate_inputs(email, password, zipcode):
+    #     if not validate_email(email):
+    #         flash("Please enter valid email address.")
+    #     if not validate_password(password):
+    #         flash("Please enter valid password.")
+    #     if not validate_zipcode(zipcode):
+    #         flash("Please enter valid zip code.")
+    #     return render_template('registration.html')
+    # elif registered_user != None:
+    #     flash("You've already registered. Please log in")
+    #     return redirect('/')
+    # else:
+    #     register_user(email, password, zipcode)
+    #     return redirect('/')
 
-#     return render_template('registration.html')
+    return jsonify(response)
 
 
 # def validate_inputs(email, password, zipcode):
