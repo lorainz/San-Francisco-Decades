@@ -223,8 +223,12 @@ def login():
     print(registered_user.email, registered_user.user_id, email)
 
     if session.get('user_id', None) != None:
-        flash('You\'re already logged in')
-        return jsonify([session['user_id'], True])
+        # flash('You\'re already logged in')
+        return jsonify({
+            'user_id': session['user_id'], 
+            'logged_in': True,
+            'message': 'You\'re already logged in'
+        })
     else:
         if registered_user == None: 
             flash('User not found. Please register.')
@@ -258,17 +262,18 @@ def register():
 
     if registered_user == None:
         register_user(email, password)
+        return jsonify([True, "Registration success. Please proceed to login page.", email, password])
     elif email == registered_user.email and  password == registered_user.password:
-        flash("Email already in use. Please log in.")
+        # flash("Email already in use. Please log in.")
+        return jsonify([True, "Email already in use. Please log in.", email, password])
         
-
-    return jsonify(response)
+    # return jsonify(response)
 
 
 def register_user(email, password):
     new_user = User(email=email, password=password)
     db.session.add(new_user)
-    flash("Registration success. Please log in.")
+    # flash("Registration success. Please log in.")
     db.session.commit()
     print(email + "SUCCESS")
 

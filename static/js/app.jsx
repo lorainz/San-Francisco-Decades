@@ -8,7 +8,7 @@ class App extends React.Component {
     this.state = {
       results: [],
       decade: null,
-      userlogin: [],
+      logged_in: null,
       currentpage: 0,
       pages: [
         <DecadeSelector/>,  
@@ -35,11 +35,11 @@ class App extends React.Component {
     console.log(this.state.pageIdx, route)
   }
 
-  changeLogin(login) {
-    console.log("BEFORE LOGGED IN:" + login)
-    this.setState({userlogin: login}); // why is this throwing an error
+  changeLogin(status) {
+    console.log("BEFORE LOGGED IN:" + status)
+    this.setState({logged_in: status}); // why is this throwing an error
     // this.setState({login: id});
-    console.log("LOGGED IN:" + login)
+    console.log("LOGGED IN:" + status)
     
   }
 
@@ -397,7 +397,10 @@ class Login extends React.Component {
     this.state = {
       email: "",
       password: "",
-      login: [],
+      loggedIn: null,
+      userId: null,
+      showMessage: true,
+      message: "Please log in.",
     }
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
@@ -426,9 +429,17 @@ class Login extends React.Component {
     console.log(valid_email, valid_password)
 
     if (!valid_email) {
-      alert("Invalid email entered. Please try again.")
+      // alert("Invalid email entered. Please try again.")
+      this.setState({
+        showMessage: true,
+        message: "Invalid email entered. Please try again."
+      })
     } else if (!valid_password) {
-      alert("Invalid password. Please try again")
+      // alert("Invalid password. Please try again")
+      this.setState({
+        showMessage: true,
+        message: "Invalid password. Please try again"
+      })
     } else {
       this.loginUserPost()
     }
@@ -442,9 +453,13 @@ class Login extends React.Component {
     })
     .then(response => {
       console.log(response.data)
-      this.setState({login: response.data})
-      console.log("state login:" + this.state.login)
-      this.updateLoginStatus(this.state.login)
+      this.setState({
+        loggedIn: response.data['logged_in'],
+        userId: response.data['user_id'],
+        message: response.data['message']
+      })
+      console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'])
+      console.log("state: ", this.state.loggedIn, this.state.userId, this.state.message)
     })
     .catch(error => {
       console.log(error)
@@ -462,7 +477,10 @@ class Login extends React.Component {
       <div className="Login panel center">
         <div className="opacity">
           <h1>Login</h1>
-          <FlashMessage />
+          <FlashMessage 
+            showMessage={this.state.showMessage}
+            message={this.state.message}
+          />
           <hr></hr>
         </div>
 
@@ -497,8 +515,8 @@ class Register extends React.Component {
       password: "",
       repeatPassword: "",
       status: false,
-      showError: false,
-      errorMessage: "",
+      showMessage: true,
+      message: "Please fill in the form below.",
     }
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
@@ -536,22 +554,18 @@ class Register extends React.Component {
     let valid_email =  !symbol_regex.test(this.state.email) && (gmail_regex.test(this.state.email) || yahoo_regex.test(this.state.email) || hotmail_regex.test(this.state.email))
     let valid_password = this.state.password == this.state.repeatPassword
 
-    console.log(valid_email, valid_password)
-
     if (valid_email && valid_password) {
       this.registerUserPost();
-      this.setState({showError: false,
-        errorMessage: "Invalid email entered. Please try again."
-      })
-    } else if (!valid_password){
-      // alert("Passwords do not match.")
-      this.setState({showError: true,
-        errorMessage: "Passwords do not match."
+      //change message in registerUserPost function
+    } else if (!valid_password) {
+      this.setState({
+        showMessage: true,
+        message: "Passwords do not match."
       })
     } else if (!valid_email) {
-      // alert("Invalid email entered. Please try again.")
-      this.setState({showError: true,
-        errorMessage: "Invalid email entered. Please try again."
+      this.setState({
+        showMessage: true,
+        message: "Invalid email entered. Please try again."
       })
     }
 
@@ -563,7 +577,11 @@ class Register extends React.Component {
       password: this.state.password
     })
     .then(response => {
-      console.log(response.data)
+      console.log("response:" + response.data)
+      this.setState({
+        showMessage: response.data[0],
+        message: response.data[1]
+      })
     })
     .catch(error => {
       console.log(error)
@@ -592,10 +610,9 @@ class Register extends React.Component {
       <div className="register panel center opacity">
         <form>
           <h1>Register</h1>
-          <p>Please fill in the form below.</p>
           <FlashMessage 
-            showError={this.state.showError}
-            errorMessage={this.state.errorMessage}
+            showMessage={this.state.showMessage}
+            message={this.state.message}
           />
           <hr></hr>
 
@@ -634,7 +651,7 @@ class FlashMessage extends React.Component {
   render() {
     return (
       <div>
-        {this.props.showError && <div className="error-message">{this.props.errorMessage}</div>}
+        {this.props.showMessage && <div className="error-message">{this.props.message}</div>}
       </div>
     );
   }
