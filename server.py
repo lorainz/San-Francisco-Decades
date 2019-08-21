@@ -210,24 +210,32 @@ def coalesce(longitude1, latitude1, longitude2, latitude2):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Log in user"""
-    email = request.form.get('email')
-    password = request.form.get('password')
+    if request.method == "POST":
+            # print('GET EMAIL AND PASSWORD')
+            # print(request.data); # returns byte string literal
+            response = request.json
+            print(response); # json
+            email = request.json['email']
+            password = request.json['password']
+            print(email, password)
 
-    # registered_user = User.query.filter(User.email == email).first()
-    # # print(registered_user.email, registered_user.password, registered_user.user_id)
+    registered_user = User.query.filter(User.email == email).first()
+    print(registered_user.email, registered_user.user_id, email)
 
-    # if session['user_id'] != None:
-    #     flash('You\'re already logged in')
-    # else:
-    #     if registered_user != None: 
-    #         if registered_user.email == email and registered_user.password == password:
-    #             session['user_id'] = registered_user.user_id
-    #             print(session['user_id'])
-    #             flash('You\'re logged in')
-    #     else:
-    #         flash('Log in information did not match')
+    if session.get('user_id', None) != None:
+        flash('You\'re already logged in')
+        return jsonify([session['user_id'], True])
+    else:
+        if registered_user == None: 
+            flash('User not found. Please register.')
+        else: 
+            if registered_user.email == email and registered_user.password == password:
+                session['user_id'] = registered_user.user_id
+                print("Logged in " + str(session['user_id']))
+                return jsonify([session['user_id'], True])
+                flash('You\'re logged in')
 
-    return redirect('/')
+    return jsonify([None, False])
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -248,43 +256,21 @@ def register():
     registered_user = User.query.filter(User.email == email).first()
     print(registered_user, email)
 
-    # if email == None:
-    #     return render_template('registration.html')
-    # elif not validate_inputs(email, password, zipcode):
-    #     if not validate_email(email):
-    #         flash("Please enter valid email address.")
-    #     if not validate_password(password):
-    #         flash("Please enter valid password.")
-    #     if not validate_zipcode(zipcode):
-    #         flash("Please enter valid zip code.")
-    #     return render_template('registration.html')
-    # elif registered_user != None:
-    #     flash("You've already registered. Please log in")
-    #     return redirect('/')
-    # else:
-    #     register_user(email, password, zipcode)
-    #     return redirect('/')
+    if registered_user == None:
+        register_user(email, password)
+    elif email == registered_user.email and  password == registered_user.password:
+        flash("Email already in use. Please log in.")
+        
 
     return jsonify(response)
 
 
-# def validate_inputs(email, password, zipcode):
-#     return validate_email(email) and validate_password(password) and validate_zipcode(zipcode)
-
-# def validate_email(email):
-#     return "@" in email and email[-4:] == ".com" and not email.isspace()
-
-# def validate_password(password):
-#     return not password.isspace()
-
-# def validate_zipcode(zipcode):
-#     return len(zipcode) == 5 and zipcode.isdigit()
-
-# def register_user(email, password, zipcode):
-#     new_user = User(email=email, password=password, zipcode=zipcode)
-#     db.session.add(new_user)
-#     flash("Registration success")
-#     db.session.commit()
+def register_user(email, password):
+    new_user = User(email=email, password=password)
+    db.session.add(new_user)
+    flash("Registration success. Please log in.")
+    db.session.commit()
+    print(email + "SUCCESS")
 
 
 if __name__ == "__main__":

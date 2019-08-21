@@ -3,3 +3,4 @@ env/
 secret*
 archive
 db_versions
+map.jsx

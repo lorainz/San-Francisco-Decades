@@ -148,7 +148,7 @@ class User(db.Model):
 
     def __repr__(self):
         """Provide helpful representation when printed."""
-        return f"<User user_id={self.user_id} email={self.email}>"
+        return f"<User user_id={self.user_id} email={self.email} password={self.password}>"
 
 class Like(db.Model):
     """Like for business by users"""

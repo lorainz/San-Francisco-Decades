@@ -3,16 +3,19 @@
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.changePage = this.changePage.bind(this); // allows pageheader menu buttons to change page
+    this.changeLogin = this.changeLogin.bind(this); // need to check this before this.state to be able to this.setState
     this.state = {
       results: [],
       decade: null,
+      userlogin: [],
       currentpage: 0,
       pages: [
         <DecadeSelector/>,  
         // <DecadeSelector results={this.state.results}/>, 
         <ResultMap />, 
         <RandomGenerator />, 
-        <Login />, 
+        <Login changeLogin={this.changeLogin}/>, 
         <Register changePage={this.changePage}/>
       ],
       pageIdx: {
@@ -23,7 +26,7 @@ class App extends React.Component {
         'Register': 4
       }, 
     };
-    this.changePage = this.changePage.bind(this) // 
+
   }
 
   //This is passed to PageHeader to be able to call this function when a menuButton is clicked
@@ -32,9 +35,14 @@ class App extends React.Component {
     console.log(this.state.pageIdx, route)
   }
 
-  // changeAnything(state) {
-  //   this.setState(state)
-  // }
+  changeLogin(login) {
+    console.log("BEFORE LOGGED IN:" + login)
+    this.setState({userlogin: login}); // why is this throwing an error
+    // this.setState({login: id});
+    console.log("LOGGED IN:" + login)
+    
+  }
+
   
   render() {
     return (
@@ -46,7 +54,6 @@ class App extends React.Component {
     )
   }
 }
-
 
 class ResultMap extends React.Component {
   constructor(props) {
@@ -136,6 +143,23 @@ class MenuButton extends React.Component {
   }
 }
 
+class SearchBox extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div className="search-box">
+        <form>
+          <input type="text" placeholder="Search.." name="search" />
+          <button type="submit"><i className="fa fa-search"></i></button>
+        </form>      
+      </div>
+    )
+  }
+}
+
 
 class DecadeSelector extends React.Component { 
   constructor(props) {
@@ -220,6 +244,7 @@ class DecadeSelector extends React.Component {
     return (
       <div className="body">
         <div className="decadeSelector">
+          <SearchBox />
           {this.renderDecadeButton(1960)}
           {this.renderDecadeButton(1970)}
           {this.renderDecadeButton(1980)}
@@ -372,13 +397,13 @@ class Login extends React.Component {
     this.state = {
       email: "",
       password: "",
-      status: false,
+      login: [],
     }
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
     this.loginUser = this.loginUser.bind(this);
-    this.validate = this.validate.bind(this);
     this.loginUserPost = this.loginUserPost.bind(this);
+    this.updateLoginStatus = this.updateLoginStatus.bind(this);
   }
 
   handleEmailChange(event) {
@@ -394,38 +419,42 @@ class Login extends React.Component {
   loginUser(e){
     e.preventDefault();
     console.log('login user')
-    
-    // check for " or ' in inputs
-    if (this.validate(this.state.email)) {
-      alert("Invalid email")
-    } else if (this.validate(this.state.password)) {
-      alert("Invalid password")
+
+    let symbol_regex = RegExp('["\']');
+    let valid_email = !symbol_regex.test(this.state.email)
+    let valid_password = !symbol_regex.test(this.state.password) 
+    console.log(valid_email, valid_password)
+
+    if (!valid_email) {
+      alert("Invalid email entered. Please try again.")
+    } else if (!valid_password) {
+      alert("Invalid password. Please try again")
     } else {
-      // this.loginUserPost()
+      this.loginUserPost()
     }
 
-  }
-
-  validate(input) {
-    for (let i=0; i < input.length; i++) {
-      if (input[i] == "\"" || input[i] == "\'") {
-        return false;
-      }
-    }
-    return true;
   }
 
   loginUserPost() {
-    axios.post('/register',{
+    axios.post('/login',{
       email: this.state.email,
       password: this.state.password
     })
     .then(response => {
       console.log(response.data)
+      this.setState({login: response.data})
+      console.log("state login:" + this.state.login)
+      this.updateLoginStatus(this.state.login)
     })
     .catch(error => {
       console.log(error)
     })
+  }
+
+  updateLoginStatus(login) {
+    console.log("before" + login)
+    this.props.changeLogin(login)
+    console.log("after" + login)
   }
 
   render() {
@@ -433,6 +462,7 @@ class Login extends React.Component {
       <div className="Login panel center">
         <div className="opacity">
           <h1>Login</h1>
+          <FlashMessage />
           <hr></hr>
         </div>
 
@@ -467,6 +497,8 @@ class Register extends React.Component {
       password: "",
       repeatPassword: "",
       status: false,
+      showError: false,
+      errorMessage: "",
     }
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
@@ -500,17 +532,27 @@ class Register extends React.Component {
     let gmail_regex = RegExp('[^@]+@gmail\.com');
     let yahoo_regex = RegExp('[^@]+@yahoo\.com');
     let hotmail_regex = RegExp('[^@]+@hotmail\.com');
-    let valid_email = gmail_regex.test(this.state.email) || yahoo_regex.test(this.state.email) || hotmail_regex.test(this.state.email)
+    let symbol_regex = RegExp('["\']');
+    let valid_email =  !symbol_regex.test(this.state.email) && (gmail_regex.test(this.state.email) || yahoo_regex.test(this.state.email) || hotmail_regex.test(this.state.email))
     let valid_password = this.state.password == this.state.repeatPassword
 
     console.log(valid_email, valid_password)
 
     if (valid_email && valid_password) {
       this.registerUserPost();
+      this.setState({showError: false,
+        errorMessage: "Invalid email entered. Please try again."
+      })
     } else if (!valid_password){
-      alert("Passwords do not match.")
+      // alert("Passwords do not match.")
+      this.setState({showError: true,
+        errorMessage: "Passwords do not match."
+      })
     } else if (!valid_email) {
-      alert("Invalid email entered. Please try again.")
+      // alert("Invalid email entered. Please try again.")
+      this.setState({showError: true,
+        errorMessage: "Invalid email entered. Please try again."
+      })
     }
 
   }
@@ -551,6 +593,10 @@ class Register extends React.Component {
         <form>
           <h1>Register</h1>
           <p>Please fill in the form below.</p>
+          <FlashMessage 
+            showError={this.state.showError}
+            errorMessage={this.state.errorMessage}
+          />
           <hr></hr>
 
           <div className="imgcontainer">
@@ -578,9 +624,21 @@ class Register extends React.Component {
       </div>
     )
   }
-
 }
 
+class FlashMessage extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  
+  render() {
+    return (
+      <div>
+        {this.props.showError && <div className="error-message">{this.props.errorMessage}</div>}
+      </div>
+    );
+  }
+}
 
 // ---------------------------------------------
 
