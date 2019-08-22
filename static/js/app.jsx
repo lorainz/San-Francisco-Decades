@@ -1,99 +1,65 @@
-// import ResultMap from './components/resultMap';
-
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.changePage = this.changePage.bind(this); // allows pageheader menu buttons to change page
+    this.changePage = this.changePage.bind(this); // allows navgation menu buttons to change page
     this.changeLogin = this.changeLogin.bind(this); // need to check this before this.state to be able to this.setState
     this.state = {
-      results: [],
-      decade: null,
-      logged_in: null,
-      currentpage: 0,
+      results: [], // DecadeSelector
+      decade: null, // DecadeSelector
+      logged_in: null, // Login
+      currentpage: 0, // Nav, Login, Register 
       pages: [
-        <DecadeSelector/>,  
-        // <DecadeSelector results={this.state.results}/>, 
-        <ResultMap />, 
+        <AboutPage />,  
+        <DecadeSelector />, 
         <RandomGenerator />, 
         <Login changeLogin={this.changeLogin}/>, 
         <Register changePage={this.changePage}/>
       ],
-      pageIdx: {
-        'About': 0,
-        'Map': 1,
-        'Random': 2,
-        'Login' : 3,
-        'Register': 4
-      }, 
+      pageIdx: {'About': 0, 'Decade': 1, 'Random': 2, 'Login' : 3, 'Register': 4}, 
     };
-
   }
-
   //This is passed to PageHeader to be able to call this function when a menuButton is clicked
   changePage(route) {
     this.setState({currentpage: this.state.pageIdx[route]});
-    console.log(this.state.pageIdx, route)
+    // console.log(this.state.pageIdx, route) // test
   }
 
+  //
   changeLogin(status) {
-    console.log("BEFORE LOGGED IN:" + status)
-    this.setState({logged_in: status}); // why is this throwing an error
-    // this.setState({login: id});
-    console.log("LOGGED IN:" + status)
-    
+    // console.log("BEFORE LOGGED IN:" + status) // test
+    this.setState({logged_in: status}); 
+    // console.log("LOGGED IN:" + status) // test
   }
 
-  
   render() {
     return (
-      <div className="page">
-        <PageHeader 
-        changePage={this.changePage}/>
+      <div className="app">
+        <NavigationBar changePage={this.changePage} />
         {this.state.pages[this.state.currentpage]}
       </div>
     )
   }
 }
 
-class ResultMap extends React.Component {
+class NavigationBar extends React.Component {
   constructor(props) {
     super(props);
-  }
-
-  render() {
-    return (
-      <div className="resultMap">Map Page</div>
-    );
-  }
-}
-
-
-class PageHeader extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      className: "bar-item button",
-      classNameGrey: "bar-item button light-grey"
-      // buttonStyle: {'backgroundColor': 'black', 'color':'white', 'width':'150px', 'height':'40px'},
-    };
-    this.menuButtonClicked = this.menuButtonClicked.bind(this);
     this.renderMenuButton = this.renderMenuButton.bind(this);
+    this.menuButtonClicked = this.menuButtonClicked.bind(this);
+    this.state = {}
   }
-  
+  //Change page (state) of parent component to track what page we are on, Rendering occurs in parent component when the function is called in the parent component
   menuButtonClicked(route) {
-    //change state of parent component, to track which page we're on
-    //rendering will happen in app component, calls the function in the parent component/app
     this.props.changePage(route) 
   }
-  
+  //
   renderMenuButton(route) {
-    //when the menu button is clicked, we pass the route to the function changePage to change the page in App
     return (
       <DecadeButton 
         value={route} 
-        className={this.state.className} 
-        style={this.state.buttonStyle} 
+        class="nav-item btn btn-link nav-link"
         onClick={() => this.menuButtonClicked(route)} 
+        //when the menu button is clicked, we pass the route to the function changePage to change the page in App
         //This is a function callback, closure 
         //it should only call the function when the button is clicked, and allows us to pass a function
         // otherwise this function would be called immediately if used this.menuButtonClicked
@@ -101,62 +67,54 @@ class PageHeader extends React.Component {
     )
   }
 
-  //Page Title and all menu buttons
   render() {
     return (
-      <div className="header">
-        <header className="panel center opacity" style={{ padding: '50px 16px 20px 16px' }}>
-          <h1 className="xlarge">San Francisco</h1>
-          <h1>Decades</h1>
-          <div className="padding-20">
-              <div className="bar border">
-                {this.renderMenuButton('About')}
-                {this.renderMenuButton('Map')}
-                {this.renderMenuButton('Random')}
-                {this.renderMenuButton('Login')}
-                {this.renderMenuButton('Register')}
-              </div>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top justify-content-between" style={{'backgroundColor': '#e3f2fd'}}>
+          <a class="navbar-brand" href="#">San Francisco Decades</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+              <li class="nav-item"> {this.renderMenuButton('About')} </li>
+              <li class="nav-item"> {this.renderMenuButton('Decade')} </li>
+              <li class="nav-item"> {this.renderMenuButton('Random')} </li>
+              <li class="nav-item"> {this.renderMenuButton('Login')} </li>
+              <li class="nav-item"> {this.renderMenuButton('Register')} </li>
+            </ul>
           </div>
-        </header>
-      </div>
+          <form class="form-inline">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search for restaurant" aria-label="Search" />
+            <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit"><i class="fa fa-search fa-fw"></i></button>
+          </form>
+      </nav>
+      )
+    }
+}
+
+class AboutPage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    }
+  }
+
+  render() {
+    return (
+      <div className="aboutbg" style={{'padding': '100px 0px 0px 50px'}}>
+        <h1>
+          San Francisco Decades 
+          <span style={{'fontSize': '20px'}}> allows you to explore restaurants with a new perspective.</span>
+        </h1>
+        <hr className="hr-light" />
+        <h5> 
+          <span style={{'padding': '0px 20px 0px 0px', 'fontSize': '20px'}}>Start by</span>
+          <span style={{'padding': '0px 0px 0px 0px', 'fontSize': '20px'}}>finding a restaurant by Decade </span>
+          <span style={{'padding': '0px 20px 0px 20px', 'fontSize': '20px'}}>or</span>
+          <span style={{'padding': '0px 0px 0px 0px', 'fontSize': '20px'}}>picking a restaurant at Random. </span>
+        </h5>
+      </div>    
     );
-  }
-}
-
-
-class MenuButton extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  //Props = Page Header
-  render() {
-    return (
-      <button 
-        className={this.props.className}
-        type="submit" 
-        value={this.props.value} 
-        style={this.props.style}
-      >
-      </button>
-    )
-  }
-}
-
-class SearchBox extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <div className="search-box">
-        <form>
-          <input type="text" placeholder="Search.." name="search" />
-          <button type="submit"><i className="fa fa-search"></i></button>
-        </form>      
-      </div>
-    )
   }
 }
 
@@ -167,13 +125,6 @@ class DecadeSelector extends React.Component {
     this.state = {
       results: {},
       buttonStyle: {'backgroundColor': 'black', 'color':'white', 'width':'150px', 'height':'40px'},
-      // buttonTracker: {
-      //   1960: buttonStyle,
-      //   1970: buttonStyle,
-      //   1980: buttonStyle,
-      //   1990: buttonStyle,
-      //   2000: buttonStyle
-      // }
     };
   }
 
@@ -242,9 +193,13 @@ class DecadeSelector extends React.Component {
 
   render() {
     return (
-      <div className="body">
+      <div className="decadebg" style={{'padding': '100px 0px 0px 50px'}}>
+        <h1>
+          Find Restaurants by Decade 
+          <span style={{'fontSize': '20px'}}></span>
+        </h1>
+        <hr></hr>
         <div className="decadeSelector">
-          <SearchBox />
           {this.renderDecadeButton(1960)}
           {this.renderDecadeButton(1970)}
           {this.renderDecadeButton(1980)}
@@ -269,6 +224,7 @@ class DecadeButton extends React.Component {
     return (
       <button 
         className="decadeButton" 
+        class={this.props.class}
         type="submit" 
         value={this.props.value} 
         style={this.props.style}
@@ -279,7 +235,6 @@ class DecadeButton extends React.Component {
     )
   }
 }
-
 
 class Restaurant extends React.Component {
   constructor(props) {
@@ -299,7 +254,7 @@ class RandomGenerator extends React.Component {
     super(props);
     this.state = {
       randomResult: {},
-      buttonStyle: {'backgroundColor': 'black', 'color':'white', 'width':'150px', 'height':'40px'},
+      buttonStyle: {'backgroundColor': 'black', 'color':'white', 'width':'200px', 'height':'40px'},
       // buttonTracker: {
       //   1960: buttonStyle,
       //   1970: buttonStyle,
@@ -358,8 +313,12 @@ class RandomGenerator extends React.Component {
 
   render() {
     return (
-      <div className="randomGenerator panel center opacity">
-        <h1>RANDOM RESULT</h1>
+      <div className="randombg" style={{'padding': '100px 0px 0px 50px'}}>
+        <h1>
+          Pick a Restaurant at Random.
+          <span style={{'fontSize': '20px'}}></span>
+        </h1>
+        <hr></hr>
         <RandomButton 
         value="Get Random Result"
         style={this.state.buttonStyle} 
@@ -460,6 +419,7 @@ class Login extends React.Component {
       })
       console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'])
       console.log("state: ", this.state.loggedIn, this.state.userId, this.state.message)
+
     })
     .catch(error => {
       console.log(error)
@@ -474,22 +434,21 @@ class Login extends React.Component {
 
   render() {
     return (
-      <div className="Login panel center">
-        <div className="opacity">
-          <h1>Login</h1>
-          <FlashMessage 
-            showMessage={this.state.showMessage}
-            message={this.state.message}
-          />
-          <hr></hr>
-        </div>
+      <div className="loginbg" style={{'padding': '100px 0px 0px 50px'}}>
+        <h1>
+          Login
+          <span style={{'fontSize': '20px'}}></span>
+        </h1>
+
+        <hr></hr>
+
+        <FlashMessage 
+          showMessage={this.state.showMessage}
+          message={this.state.message}
+        />
 
         <form>
-          <div className="imgcontainer">
-            <img src="https://cdn.akc.org/Marketplace/Breeds/Pembroke_Welsh_Corgi_SERP.jpg" alt="corgi" className="loginImage" style={{ width: '500px' }}/>
-          </div>
-
-          <div className="container opacity">
+          <div className="loginform">
             <label for="email"><b>Username</b></label>
             <input type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
 
@@ -499,13 +458,16 @@ class Login extends React.Component {
             <button type="submit" className="submitButton" onClick={this.loginUser}>Login</button>
             <p>Click here to Register</p>
           </div>
-
         </form>
+
       </div>
-    )
+
+      
+    ) 
   }
 
 }
+
 
 class Register extends React.Component {
   constructor(props) {
@@ -607,19 +569,20 @@ class Register extends React.Component {
 
   render() {
     return (
-      <div className="register panel center opacity">
+      <div className="registerbg" style={{'padding': '100px 0px 0px 50px'}}>
+        <h1>
+          Register
+          <span style={{'fontSize': '20px'}}></span>
+        </h1>
+
+        <hr></hr>
+        
+        <FlashMessage 
+          showMessage={this.state.showMessage}
+          message={this.state.message}
+        />
+
         <form>
-          <h1>Register</h1>
-          <FlashMessage 
-            showMessage={this.state.showMessage}
-            message={this.state.message}
-          />
-          <hr></hr>
-
-          <div className="imgcontainer">
-            <img src="https://img.buzzfeed.com/buzzfeed-static/static/2014-09/23/12/enhanced/webdr10/longform-original-22600-1411489016-22.jpg?downsize=700%3A%2A&output-quality=auto&output-format=auto&output-quality=auto&output-format=auto&downsize=360:*" alt="corgi" className="loginImage" style={{ width: '200px', opacity: '1' }}/>
-          </div>
-
           <div className="container">
             <label for="email"><b>Username</b></label>
             <input type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
@@ -636,7 +599,6 @@ class Register extends React.Component {
           <div className="container signin">
             <p>Already have an account? {this.renderMenuButton('Login')}</p>
           </div>
-
         </form>
       </div>
     )
@@ -663,3 +625,103 @@ ReactDOM.render(
   <App />, 
   document.getElementById('root') 
 );
+
+
+//-------------------- OLD CODE --------------------------
+// class PageHeader extends React.Component {
+//   constructor(props) {
+//     super(props);
+//     this.state = {};
+//     this.menuButtonClicked = this.menuButtonClicked.bind(this);
+//     this.renderMenuButton = this.renderMenuButton.bind(this);
+//   }
+  
+//   menuButtonClicked(route) {
+//     //change state of parent component, to track which page we're on
+//     //rendering will happen in app component, calls the function in the parent component/app
+//     this.props.changePage(route) 
+//   }
+  
+//   renderMenuButton(route) {
+//     //when the menu button is clicked, we pass the route to the function changePage to change the page in App
+//     return (
+//       <DecadeButton 
+//         value={route} 
+//         className={this.state.className} 
+//         style={this.state.buttonStyle} 
+//         onClick={() => this.menuButtonClicked(route)} 
+//         //This is a function callback, closure 
+//         //it should only call the function when the button is clicked, and allows us to pass a function
+//         // otherwise this function would be called immediately if used this.menuButtonClicked
+//       />
+//     )
+//   }
+
+//   //Page Title and all menu buttons
+//   render() {
+//     return (
+//       <div className="header">
+//         <header className="panel center opacity" style={{ padding: '50px 16px 20px 16px' }}>
+//           <div className="padding-20">
+//               <div className="bar border">
+//                 {this.renderMenuButton('About')}
+//                 {this.renderMenuButton('Decade')}
+//                 {this.renderMenuButton('Random')}
+//                 {this.renderMenuButton('Login')}
+//                 {this.renderMenuButton('Register')}
+//               </div>
+//           </div>
+//         </header>
+//       </div>
+//     );
+//   }
+// }
+
+class ResultMap extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div className="resultMap">Map Page</div>
+    );
+  }
+}
+
+class MenuButton extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  //Props = Page Header
+  render() {
+    return (
+      <button 
+        className={this.props.className}
+        type="submit" 
+        value={this.props.value} 
+        style={this.props.style}
+      >
+      </button>
+    )
+  }
+}
+
+
+// class SearchBox extends React.Component {
+//   constructor(props) {
+//     super(props);
+//   }
+
+//   render() {
+//     return (
+//       <div className="search-box">
+//         <form>
+//           <input type="text" placeholder="Search.." name="search" />
+//           <button type="submit"><i className="fa fa-search"></i></button>
+//         </form>      
+//       </div>
+//     )
+//   }
+// }
