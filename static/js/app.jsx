@@ -101,8 +101,8 @@ class AboutPage extends React.Component {
 
   render() {
     return (
-      <div className="aboutbg" style={{'padding': '100px 0px 0px 50px'}}>
-        <h1>
+      <div className="aboutbg opacity-extra-medium bg-black" style={{'padding': '100px 0px 0px 50px'}}>
+        <h1 id="opacity-none">
           San Francisco Decades 
           <span style={{'fontSize': '20px'}}> allows you to explore restaurants with a new perspective.</span>
         </h1>
@@ -193,7 +193,7 @@ class DecadeSelector extends React.Component {
 
   render() {
     return (
-      <div className="decadebg" style={{'padding': '100px 0px 0px 50px'}}>
+      <div className="decadebg opacity-extra-medium bg-black" style={{'padding': '100px 0px 0px 50px'}}>
         <h1>
           Find Restaurants by Decade 
           <span style={{'fontSize': '20px'}}></span>
@@ -313,7 +313,7 @@ class RandomGenerator extends React.Component {
 
   render() {
     return (
-      <div className="randombg" style={{'padding': '100px 0px 0px 50px'}}>
+      <div className="randombg opacity-extra-medium bg-black" style={{'padding': '100px 0px 0px 50px'}}>
         <h1>
           Pick a Restaurant at Random.
           <span style={{'fontSize': '20px'}}></span>
@@ -359,7 +359,7 @@ class Login extends React.Component {
       loggedIn: null,
       userId: null,
       showMessage: true,
-      message: "Please log in.",
+      message: "",
     }
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
@@ -435,31 +435,31 @@ class Login extends React.Component {
   render() {
     return (
       <div className="loginbg" style={{'padding': '100px 0px 0px 50px'}}>
-        <h1>
-          Login
-          <span style={{'fontSize': '20px'}}></span>
-        </h1>
+        <div className="login-form-box">
+          <h1>Account Login</h1>
 
-        <hr></hr>
+          <hr></hr>
 
-        <FlashMessage 
-          showMessage={this.state.showMessage}
-          message={this.state.message}
-        />
-
-        <form>
-          <div className="loginform">
-            <label for="email"><b>Username</b></label>
-            <input type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
-
-            <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
-
-            <button type="submit" className="submitButton" onClick={this.loginUser}>Login</button>
-            <p>Click here to Register</p>
+          <FlashMessage 
+            showMessage={this.state.showMessage}
+            message={this.state.message}
+          />
+        
+          <form>
+            <p><span>
+              <input className="input inputbg" type="text" placeholder=" Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
+            </span></p>
+            <p><span>
+              <input className="input inputbg" type="password" placeholder=" Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
+            </span></p>
+            <p><span className="center">
+              <button type="submit" className="submitButton btn btn-outline-dark login-button" onClick={this.loginUser}>Login</button>
+            </span></p>
+            <p><span className="center">
+              <p>Create an account?</p>
+            </span></p>
+          </form>
           </div>
-        </form>
-
       </div>
 
       
@@ -569,37 +569,39 @@ class Register extends React.Component {
 
   render() {
     return (
-      <div className="registerbg" style={{'padding': '100px 0px 0px 50px'}}>
-        <h1>
-          Register
-          <span style={{'fontSize': '20px'}}></span>
-        </h1>
+      <div className="registerbg opacity-extra-medium bg-black" style={{'padding': '100px 0px 0px 50px'}}>
+        <div className="registration-form-box">
+          <h1>
+            Register
+            <span style={{'fontSize': '20px'}}></span>
+          </h1>
 
-        <hr></hr>
-        
-        <FlashMessage 
-          showMessage={this.state.showMessage}
-          message={this.state.message}
-        />
-
-        <form>
-          <div className="container">
-            <label for="email"><b>Username</b></label>
-            <input type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
-
-            <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
-
-            <label for="password-repeat"><b>Enter Password again:</b></label>
-            <input type="password" placeholder="Enter Password" name="password" value={this.state.repeatPassword} onChange={this.handleSecondPasswordChange} required></input>
-
-            <button type="submit" className="registerButton" onClick={this.registerUser}>Register</button>
-          </div>
+          <hr></hr>
           
-          <div className="container signin">
-            <p>Already have an account? {this.renderMenuButton('Login')}</p>
-          </div>
-        </form>
+          <FlashMessage 
+            showMessage={this.state.showMessage}
+            message={this.state.message}
+          />
+
+          <form>
+            <div className="container">
+              <label for="email"><b>Username</b></label>
+              <input type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
+
+              <label for="password"><b>Password</b></label>
+              <input type="password" placeholder="Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
+
+              <label for="password-repeat"><b>Enter Password again:</b></label>
+              <input type="password" placeholder="Enter Password" name="password" value={this.state.repeatPassword} onChange={this.handleSecondPasswordChange} required></input>
+
+              <button type="submit" className="registerButton" onClick={this.registerUser}>Register</button>
+            </div>
+            
+            <div className="container signin">
+              <p>Already have an account? {this.renderMenuButton('Login')}</p>
+            </div>
+          </form>
+        </div>
       </div>
     )
   }
