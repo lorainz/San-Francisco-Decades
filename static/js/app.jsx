@@ -12,7 +12,7 @@ class App extends React.Component {
         <AboutPage />,  
         <DecadeSelector />, 
         <RandomGenerator />, 
-        <Login changeLogin={this.changeLogin}/>, 
+        <Login changeLogin={this.changeLogin} changePage={this.changePage}/>, 
         <Register changePage={this.changePage}/>
       ],
       pageIdx: {'About': 0, 'Decade': 1, 'Random': 2, 'Login' : 3, 'Register': 4}, 
@@ -132,7 +132,7 @@ class DecadeSelector extends React.Component {
     return (
       <DecadeButton 
         value={year} 
-        style={this.state.buttonStyle} 
+        class="btn btn-dark btn-lg"
         onClick={() => this.handleClick(year)} //it should only do the action the thing that has been clicked 
       />
     )
@@ -199,6 +199,7 @@ class DecadeSelector extends React.Component {
           <span style={{'fontSize': '20px'}}></span>
         </h1>
         <hr></hr>
+
         <div className="decadeSelector">
           {this.renderDecadeButton(1960)}
           {this.renderDecadeButton(1970)}
@@ -314,17 +315,20 @@ class RandomGenerator extends React.Component {
   render() {
     return (
       <div className="randombg opacity-extra-medium bg-black" style={{'padding': '100px 0px 0px 50px'}}>
-        <h1>
-          Pick a Restaurant at Random.
-          <span style={{'fontSize': '20px'}}></span>
-        </h1>
-        <hr></hr>
-        <RandomButton 
-        value="Get Random Result"
-        style={this.state.buttonStyle} 
-        onClick={() => this.handleClick()} //it should only do the action the thing that has been clicked 
-        />
-        {this.renderResultsData()}
+          <div className="container random-form-box">
+            <h1>
+            Pick a Restaurant at Random.
+            <span style={{'fontSize': '20px'}}></span>
+          </h1>
+          <hr></hr>
+          <RandomButton 
+          value="Get Random Result"
+          className="randomButton btn btn-dark"
+          // style={this.state.buttonStyle} 
+          onClick={() => this.handleClick()} //it should only do the action the thing that has been clicked 
+          />
+          {this.renderResultsData()}
+        </div>
       </div>
     )
   }
@@ -338,7 +342,7 @@ class RandomButton extends React.Component {
   render() {
     return (
       <button 
-        className="randomButton" 
+        className={this.props.className}
         type="submit" 
         // value={this.props.value} 
         style={this.props.style}
@@ -353,6 +357,8 @@ class RandomButton extends React.Component {
 class Login extends React.Component {
   constructor(props) {
     super(props);
+    this.menuButtonClicked = this.menuButtonClicked.bind(this)
+    this.renderMenuButton = this.renderMenuButton.bind(this)  
     this.state = {
       email: "",
       password: "",
@@ -432,6 +438,23 @@ class Login extends React.Component {
     console.log("after" + login)
   }
 
+  menuButtonClicked(route) {
+    this.props.changePage(route) 
+    //change state of parent component, to track which page we're on
+    //rendering will happen in app component, calls the function in the parent component/app
+  }
+  
+  renderMenuButton(route) {
+    return (
+      <DecadeButton 
+        value={route} 
+        // className={this.state.className} 
+        // style={this.state.buttonStyle} 
+        onClick={() => this.menuButtonClicked(route)} //it should only do the action the thing that has been clicked 
+      />
+    )
+  }
+
   render() {
     return (
       <div className="loginbg" style={{'padding': '100px 0px 0px 50px'}}>
@@ -453,10 +476,10 @@ class Login extends React.Component {
               <input className="input inputbg" type="password" placeholder=" Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
             </span></p>
             <p><span className="center">
-              <button type="submit" className="submitButton btn btn-outline-dark login-button" onClick={this.loginUser}>Login</button>
+              <button type="submit" className="submitButton btn btn-dark login-button" onClick={this.loginUser}>Login</button>
             </span></p>
             <p><span className="center">
-              <p>Create an account?</p>
+              <p>Create an account? {this.renderMenuButton('Register')}</p>
             </span></p>
           </form>
           </div>
@@ -478,7 +501,7 @@ class Register extends React.Component {
       repeatPassword: "",
       status: false,
       showMessage: true,
-      message: "Please fill in the form below.",
+      message: "",
     }
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
@@ -572,7 +595,7 @@ class Register extends React.Component {
       <div className="registerbg opacity-extra-medium bg-black" style={{'padding': '100px 0px 0px 50px'}}>
         <div className="registration-form-box">
           <h1>
-            Register
+            Registration
             <span style={{'fontSize': '20px'}}></span>
           </h1>
 
@@ -585,21 +608,27 @@ class Register extends React.Component {
 
           <form>
             <div className="container">
-              <label for="email"><b>Username</b></label>
-              <input type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
-
-              <label for="password"><b>Password</b></label>
-              <input type="password" placeholder="Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
-
-              <label for="password-repeat"><b>Enter Password again:</b></label>
-              <input type="password" placeholder="Enter Password" name="password" value={this.state.repeatPassword} onChange={this.handleSecondPasswordChange} required></input>
-
-              <button type="submit" className="registerButton" onClick={this.registerUser}>Register</button>
+              <p><span>
+                <label for="email"><b>Enter Email:</b></label>
+                <input className="input inputbg" type="text" placeholder="Enter Email" name="email" value={this.state.email} onChange={this.handleEmailChange} required></input>
+              </span></p>
+              <p><span>
+                <label for="password"><b>Enter Password:</b></label>
+                <input className="input inputbg" type="password" placeholder="Enter Password" name="password" value={this.state.password} onChange={this.handlePasswordChange} required></input>
+              </span></p>
+              <p><span>
+                <label for="password-repeat"><b>Enter Password again:</b></label>
+                <input className="input inputbg" type="password" placeholder="Enter Password" name="password" value={this.state.repeatPassword} onChange={this.handleSecondPasswordChange} required></input>
+              </span></p>
+              <p><span>
+                <button type="submit" className="registerButton btn btn-dark login-button center" onClick={this.registerUser}>Register</button>
+              </span></p>
             </div>
             
-            <div className="container signin">
+            <div className="container signin center">
               <p>Already have an account? {this.renderMenuButton('Login')}</p>
             </div>
+
           </form>
         </div>
       </div>

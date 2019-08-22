@@ -67,25 +67,45 @@ div {
     /* border: 15px solid green; */
     padding: 20px;
     margin: 10px;
-    background: rgba(255,255,255, 0.8)
+    background: rgba(255,255,255, 0.9)
 }
 
 .registration-form-box {
     background-color: white;
     width: 450px;
-    height: 300px;
+    height: 525 px;
     /* border: 15px solid green; */
     padding: 20px;
     margin: 10px;
-    background: rgba(255,255,255, 0.8);
+    background: rgba(255,255,255, 0.9);
+}
+
+.random-form-box {
+    /* background-color: white; */
+    width: 600px;
+    height: auto;
+    /* border: 15px solid green; */
+    /* padding: 20px;
+    margin: 10px; */
+    /* background: rgba(255,255,255, 0) */
+}
+
+.random-form-result {
+    /* background-color: white; */
+    width: 600px;
+    height: auto;
+    /* border: 15px solid green; */
+    /* padding: 20px;
+    margin: 10px; */
+    background: rgba(255,255,255, 0)
 }
 
 .login-button {
     width: 99%;
     height: 50px;
     position: relative;
-    background-color: white;
-    border: 1px solid #e6e6e6;
+    /* background-color: white; */
+    /* border: 1px solid #e6e6e6; */
 }
 
 .center {
@@ -100,7 +120,7 @@ div {
 input {
     background-color: transparent;
     border: 0px solid;
-    height: 20px;
+    /* height: 30px; */
     width: 160px;
     color: #CCC;
     padding: 10px;
@@ -128,6 +148,14 @@ p span {
     color: #666666;
     line-height: 1.2;
 } 
+
+.btn-lg  {
+    padding: 10px 20px;
+    font-size: 15px;
+    border-radius: 10px;
+    height: auto;
+    width:200px;   
+}
 
 /* .wrap-input100.rs1 {
     border-top: none;
