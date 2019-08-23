@@ -43,9 +43,15 @@ body, html {
     background-size: cover;
 }
 
+.paddingbg {
+    padding: 100px 0px 0px 50px;
+}
+
 div {
     display: block;
 }
+
+.header-size
 
 .opacity-extra-medium {
     position: absolute;
@@ -60,47 +66,55 @@ div {
     background-color: #000;
 } */
 
-.login-form-box {
+.form-box {
     background-color: white;
     width: 450px;
-    height: 350px;
+    height: auto;
     /* border: 15px solid green; */
     padding: 20px;
     margin: 10px;
     background: rgba(255,255,255, 0.9)
 }
 
-.registration-form-box {
+
+.result-box {
     background-color: white;
-    width: 450px;
-    height: 525 px;
+    width: 900px;
+    height: auto;
     /* border: 15px solid green; */
     padding: 20px;
     margin: 10px;
-    background: rgba(255,255,255, 0.9);
+    background: rgba(255,255,255, 0.7)
 }
-
-.random-form-box {
-    /* background-color: white; */
-    width: 600px;
+.result-box-wide {
+    background-color: white;
+    width: 900px;
     height: auto;
     /* border: 15px solid green; */
-    /* padding: 20px;
-    margin: 10px; */
-    /* background: rgba(255,255,255, 0) */
+    padding: 20px;
+    margin: 10px;
+    background: rgba(255,255,255, 0.7)
 }
 
-.random-form-result {
-    /* background-color: white; */
-    width: 600px;
+.header-box {
+    background-color: white;
+    width: 1200px;
     height: auto;
     /* border: 15px solid green; */
-    /* padding: 20px;
-    margin: 10px; */
-    background: rgba(255,255,255, 0)
+    padding: 20px;
+    margin: 10px;
+    background: rgba(255,255,255, 0.5)
 }
 
-.login-button {
+.food-pic {
+    width: 600px;
+    /* height: 300px; */
+    opacity: 0.9
+}
+
+
+
+.wide-button {
     width: 99%;
     height: 50px;
     position: relative;
@@ -118,20 +132,24 @@ div {
   }
 
 input {
-    background-color: transparent;
     border: 0px solid;
-    /* height: 30px; */
     width: 160px;
-    color: #CCC;
     padding: 10px;
+    /* background-color: transparent; */
+    /* height: 30px; */
+    /* color: #CCC; */
 }
 
 .inputbg {
+    display: block;
     width: 100%;
     height: 50px;
     position: relative;
     background-color: #fff;
     border: 1px solid #e6e6e6;
+    font-size: 15px;
+    color: #666666;
+    line-height: 1.2;
   }
 
 
@@ -139,15 +157,7 @@ p span {
     display: block;
 }
 
-.input {
-    display: block;
-    width: 100%;
-    /* background: transparent; */
-    /* font-family: OpenSans-Regular;  */
-    font-size: 15px;
-    color: #666666;
-    line-height: 1.2;
-} 
+
 
 .btn-lg  {
     padding: 10px 20px;
@@ -161,6 +171,10 @@ p span {
     width:5px;
     height:auto;
     display:inline-block;
+}
+
+.center {
+    text-align: center
 }
 
 /* .wrap-input100.rs1 {
