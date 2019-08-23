@@ -149,9 +149,9 @@ class AboutPage extends React.Component {
             
             <hr />
             <h5 className="center" style={{'fontSize': '20px'}}> 
-              <span> Find a restaurant by {this.renderMenuButton('Decade')}</span>
-              <span style={{'padding': '0px 20px 0px 20px'}}>or</span>
-              <span>Pick a restaurant at {this.renderMenuButton('Random')} </span>
+              <span> Find a restaurant by </span><span style={{'padding': '0px 0px 0px 20px'}}>{this.renderMenuButton('Decade')}</span>
+              <span style={{'padding': '0px 50px 0px 50px'}}>or</span>
+              <span>Pick a restaurant at </span><span  style={{'padding': '0px 0px 0px 20px'}}>{this.renderMenuButton('Random')} </span>
               <span></span>
             </h5>
           </div>
@@ -335,18 +335,15 @@ class RandomGenerator extends React.Component {
         {
           Object.keys(this.state.randomResult).map((key) => ( 
             <div key={key}> 
-              <a href={this.state.randomResult[key]['url']}>
-                <img src={this.state.randomResult[key]['image_url']} className ="food-pic" alt="" style={{'width':'20%'}} />
-              </a>
-              <p>{this.state.randomResult[key]['dba_name']}</p>
-              Year: {this.state.randomResult[key]['dba_start_date']}
-              Name: {this.state.randomResult[key]['name']}
-              Neighborhood: {this.state.randomResult[key]['neighborhoods_analysis_boundaries']}
-              Categories: {this.state.randomResult[key]['categories']}
-              Coordinates: {this.state.randomResult[key]['coordinates']}
-              Price: {this.state.randomResult[key]['price']}
-              Rating: {this.state.randomResult[key]['rating']}
-              Review count: {this.state.randomResult[key]['review_count']}
+              <p style={{'font-size': '20px'}}>{this.state.randomResult[key]['name']}, {this.state.randomResult[key]['dba_start_date']}</p>
+              <p><a href={this.state.randomResult[key]['url']}>
+                <img src={this.state.randomResult[key]['image_url']} className ="food-pic" alt="" />
+              </a></p>
+
+              <p>Neighborhood: {this.state.randomResult[key]['neighborhoods_analysis_boundaries']}</p>
+              <p>Categories: {this.state.randomResult[key]['categories']}</p>
+              <p>Price: {this.state.randomResult[key]['price']}</p>
+              <p>Rating: {this.state.randomResult[key]['rating']}</p>
               
             </div> 
           ))
