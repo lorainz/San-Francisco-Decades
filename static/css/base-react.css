@@ -157,6 +157,12 @@ p span {
     width:200px;   
 }
 
+.divider{
+    width:5px;
+    height:auto;
+    display:inline-block;
+}
+
 /* .wrap-input100.rs1 {
     border-top: none;
 }
