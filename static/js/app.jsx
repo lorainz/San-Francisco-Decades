@@ -206,26 +206,63 @@ class DecadeSelector extends React.Component {
     return (
       <div className="restaurant"> 
         Results: {Object.keys(this.state.results).length}
-        {
-          Object.keys(this.state.results).map((key) => ( 
-            <div key={key}> 
-              <p><span>{this.state.results[key]['dba_name']}</span><span></span></p>
-
-              <p>Year: {this.state.results[key]['dba_start_date']}</p>
-              <p>Name: {this.state.results[key]['name']}</p>
-              <p>Neighborhood: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
-              <p>Categories: {this.state.results[key]['categories']}</p>
-              <p>Price: {this.state.results[key]['price']}</p>
-              <p>Rating: {this.state.results[key]['rating']}</p>
-              <p>Review count: {this.state.results[key]['review_count']}</p>
-              <a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className ="food-pic" alt="" /></a>
-            </div> 
-          ))
-        }
-        
+        <div className="grid-container">
+          {       
+            Object.keys(this.state.results).map((key, i) => (
+              
+              <div key={key} style={{'width':'300px', 'height': '300px'}}> 
+                <p><span>{this.state.results[key]['name']}, {this.state.results[key]['dba_start_date']}</span><span></span></p>
+                <div style={{'text-align': 'center'}}>
+                  <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
+                </div>
+                <div style={{'text-align' : 'left'}}>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Neighborhood: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Categories: {this.state.results[key]['categories']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Price: {this.state.results[key]['price']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Rating: {this.state.results[key]['rating']}</p>
+                </div>
+              </div> 
+            ))
+          }              
+        </div>
       </div>
     )
   }
+
+  // Object.keys(this.state.results).map(key => {
+  //   if(key == 0 || key % 4 == 0) 
+  //     return <div class="row">
+  //       <div class="col-sm">
+  //         <div key={key} style={{'width':'300px', 'height': '300px'}}> 
+  //             <p><span>{this.state.results[key]['name']}, {this.state.results[key]['dba_start_date']}</span><span></span></p>
+  //             <div style={{'text-align': 'center'}}>
+  //               <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
+  //             </div>
+  //             <div style={{'text-align' : 'left'}}>
+  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Neighborhood: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
+  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Categories: {this.state.results[key]['categories']}</p>
+  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Price: {this.state.results[key]['price']}</p>
+  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Rating: {this.state.results[key]['rating']}</p>
+  //             </div>
+  //           </div> 
+
+  //     if(key % 4 == 3 || key == Object.keys(this.state.results).length - 1) 
+  //     return <div class="col-sm">
+  //         <div key={key} style={{'width':'300px', 'height': '300px'}}> 
+  //             <p><span>{this.state.results[key]['name']}, {this.state.results[key]['dba_start_date']}</span><span></span></p>
+  //             <div style={{'text-align': 'center'}}>
+  //               <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
+  //             </div>
+  //             <div style={{'text-align' : 'left'}}>
+  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Neighborhood: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
+  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Categories: {this.state.results[key]['categories']}</p>
+  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Price: {this.state.results[key]['price']}</p>
+  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Rating: {this.state.results[key]['rating']}</p>
+  //             </div>
+  //           </div> 
+  //         </div>
+
+  
 
   //old version of restaurant render
   // renderResultsData() {
@@ -269,9 +306,12 @@ class DecadeSelector extends React.Component {
             {this.renderDecadeButton(1990)}<div class="divider"/>
             {this.renderDecadeButton(2000)}
           </div>
+
           <div className="results center">
             {this.state.resultsLength}
-            {this.renderResultsData()}
+            <div style={{'display': 'flex', 'width': '1200px'}}>
+              {this.renderResultsData()}
+            </div>
           </div>
         </div>
       </div>
@@ -331,20 +371,20 @@ class RandomGenerator extends React.Component {
 
   renderResultsData() {
     return (
-      <div className="restaurant"> 
+      <div className="restaurant" style={{'text-align': 'center'}}> 
         {
           Object.keys(this.state.randomResult).map((key) => ( 
-            <div key={key}> 
+            <div key={key} style={{'width':'300px'}}> 
               <p style={{'font-size': '20px'}}>{this.state.randomResult[key]['name']}, {this.state.randomResult[key]['dba_start_date']}</p>
               <p><a href={this.state.randomResult[key]['url']}>
                 <img src={this.state.randomResult[key]['image_url']} className ="food-pic" alt="" />
               </a></p>
-
-              <p>Neighborhood: {this.state.randomResult[key]['neighborhoods_analysis_boundaries']}</p>
-              <p>Categories: {this.state.randomResult[key]['categories']}</p>
-              <p>Price: {this.state.randomResult[key]['price']}</p>
-              <p>Rating: {this.state.randomResult[key]['rating']}</p>
-              
+              <div style={{'text-align' : 'left'}}>
+                <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Neighborhood: {this.state.randomResult[key]['neighborhoods_analysis_boundaries']}</p>
+                <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Categories: {this.state.randomResult[key]['categories']}</p>
+                <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Price: {this.state.randomResult[key]['price']}</p>
+                <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Rating: {this.state.randomResult[key]['rating']}</p>
+              </div>
             </div> 
           ))
         }
@@ -362,10 +402,8 @@ class RandomGenerator extends React.Component {
             <div className="container">
               <h1>Pick a Restaurant at Random.</h1>
               <hr />
-
-              {this.renderResultsData()}
-
-              <GeneralButton value="Get Random Result" className="btn btn-dark" onClick={() => this.handleClick()} />
+              <div className="center">{this.renderResultsData()}</div>
+              <div style={{'padding': '15px 0px 15px 0px'}}><GeneralButton value="Get Random Result" className="btn btn-dark" onClick={() => this.handleClick()} /></div>
             </div>
           </div>
         </div>

@@ -1,6 +1,22 @@
 body, html {
     height: 100%;
 }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    grid-template-rows: 400px 600px;
+    grid-gap: 10px;
+    background-color: #2196F3;
+    padding: 10px;
+  }
+.grid-container > div {
+    background-color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    padding: 20px 0;
+    font-size: 30px;
+}
+
 .aboutbg {
     background-image: url("https://images.unsplash.com/photo-1490598000245-075175152d25?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80");
     height: 100vh;
@@ -79,7 +95,7 @@ div {
 
 .result-box {
     background-color: white;
-    width: 900px;
+    width: 1200px;
     height: auto;
     /* border: 15px solid green; */
     padding: 20px;
@@ -109,10 +125,20 @@ div {
 .food-pic {
     width: 250px;
     /* height: 300px; */
-    opacity: 0.9
+    opacity: 0.9;
+    max-height: 350px
 }
 
-
+.food-pic-results {
+    /* height: 300px; */
+    opacity: 0.9;
+    /* max-width:100%;
+    max-height:100%; */
+    width: 150px;
+    height: 150px;
+    margin: 0px;
+    padding: 0px 0px 0px 0px;
+}
 
 .wide-button {
     width: 99%;
