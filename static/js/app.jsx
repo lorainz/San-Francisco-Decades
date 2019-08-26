@@ -211,7 +211,7 @@ class DecadeSelector extends React.Component {
             Object.keys(this.state.results).map((key, i) => (
               
               <div key={key} style={{'width':'300px', 'height': '300px'}}> 
-                <p><span>{this.state.results[key]['name']}, {this.state.results[key]['dba_start_date']}</span><span></span></p>
+                <p><span>{this.state.results[key]['name']}, <br />{this.state.results[key]['dba_start_date']}</span><span></span></p>
                 <div style={{'text-align': 'center'}}>
                   <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
                 </div>
