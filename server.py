@@ -17,12 +17,11 @@ from random import randrange
 
 
 app = Flask(__name__)
+
 # Required to use Flask sessions and the debug toolbar
 app.secret_key = app_key
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-# Normally, if you use an undefined variable in Jinja2, it fails
-# silently. This is horrible. Fix this so that, instead, it raises an
-# error.
+# Normally, if you use an undefined variable in Jinja2, it fails silently. This is horrible. Fix this so that, instead, it raises an error.
 app.jinja_env.undefined = StrictUndefined
 
 
@@ -33,8 +32,8 @@ def index():
 
 @app.route('/inputs') 
 def inputs(): 
-    """Generate results by decade."""
-    search = request.args.get('decade')
+    """Generates results for restaurants by decade. Results rendered in Decade Selector."""
+    search = request.args.get('decade') 
     start = search + '-01-01'
     end = str(int(search) + 10) + '-01-01'
     # print(end)
@@ -65,7 +64,6 @@ def inputs():
         .order_by(Business.dba_start_date)
         .all()
     )
-
     businesses = convert_list_to_dict(result)
 
     # return str(businesses)
@@ -73,13 +71,21 @@ def inputs():
 
 @app.route('/random') 
 def random(): 
-    """Generate random result."""
+    """Generates a random result by:
+    Query database for list of all ttxids/restaurants. 
+    Select a random integer from range 0 to total number of ttxids/restaurants.
+    Find ttxid at index of random integer and query the database for restaurant details. 
+    Results rendered in Random Generator."""
+
+    #list of all ttxid
     all_ids = (db.session.query(Review.ttxid).all())
     # print(len(all_ids), all_ids[len(all_ids)-1][0])
 
+    #select a random restaurant using randrange for 0 to total # of ttxid queried above
     random_idx = randrange(len(all_ids))
     random_ttxid = all_ids[random_idx][0]
 
+    #query for select restaurant details
     result = (db.session
         .query(
         Business.ttxid, 
@@ -106,24 +112,63 @@ def random():
         .all()
     )
 
+    #convert to format for front-end use
     businesses = convert_one_to_dict(result)
 
     # return str(businesses)
     return jsonify(businesses)
 
-# @app.route('/categories') 
-# def categories(): 
-#     result = (db.session.query(Review.categories).all())
+@app.route('/categories') 
+def categories(): 
+    """Generates a random result by:
+    Query database for list of all ttxids/restaurants. 
+    Select a random integer from range 0 to total number of ttxids/restaurants.
+    Find ttxid at index of random integer and query the database for restaurant details. 
+    Results rendered in Random Generator."""
+    search = request.args.get('decade') 
+    # search = '2010'
+    start = search + '-01-01'
+    end = str(int(search) + 10) + '-01-01'
+    
+    result = (db.session.query(Review.categories).join(Business)
+        .filter(
+        Business.dba_start_date > start, 
+        Business.dba_start_date < end).all())
 
-#     categories = []
-#     for r in result:
-#         for i in r:
-#             sub_categories = i.split(",")
-#             for sub_category in sub_categories:
-#                 if sub_category.strip() not in categories and sub_category.strip() != "":
-#                     categories.append(sub_category.strip())
 
-#     return jsonify(sorted(categories))
+    #     result = (db.session
+    #     .query(
+    #     Business.ttxid, 
+    #     Business.dba_name, 
+    #     Business.dba_start_date, 
+    #     Business.location_start_date, 
+    #     Business.neighborhoods_analysis_boundaries, 
+    #     Review.name, 
+    #     Review.image_url, 
+    #     Review.url, Review.
+    #     review_count, 
+    #     Review.categories, 
+    #     Review.rating, 
+    #     Review.price,
+    #     Business.longitude,
+    #     Business.latitude,
+    #     Review.longitude,
+    #     Review.latitude
+    #     )
+        
+    #     .order_by(Business.dba_start_date)
+    #     .all()
+    # )
+
+    categories = []
+    for r in result:
+        for i in r:
+            sub_categories = i.split(",")
+            for sub_category in sub_categories:
+                if sub_category.strip() not in categories and sub_category.strip() != "":
+                    categories.append(sub_category.strip())
+
+    return jsonify(sorted(categories))
 
 #convert query result list into a dictionary
 def convert_list_to_dict(result):

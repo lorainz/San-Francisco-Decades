@@ -166,7 +166,9 @@ class DecadeSelector extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      results: {},
+      showResults: false,
+      results: [],
+      categories: [],
     };
   }
 
@@ -187,6 +189,7 @@ class DecadeSelector extends React.Component {
   //When decade button is clicked, update results using getData
   handleClick(year) {
     this.getData(year)
+    this.getCategories(year)
     alert('clicked ' + year)
   }
 
@@ -196,15 +199,61 @@ class DecadeSelector extends React.Component {
     axios.get(urlString)
     .then(response => {
       // console.log(response.data)
-      this.setState({results: response.data})
+      this.setState({results: response.data, showResults: true,})
     })
     .catch(error => {console.log(error)})
   }
 
-  //Structures results into output for endpoint
+  getCategories(year) {
+    const urlString = '/categories?decade=' + year
+    axios.get(urlString)
+    .then(response => {
+      // console.log(response.data)
+      this.setState({categories: response.data})
+    })
+    .catch(error => {console.log(error)})
+  }
+
+  renderCategories() {
+    return (
+      <div>
+        <select>
+          <option value="0">Select category:</option>
+          {this.state.categories.map((category) =>
+            <option value={category}>{category}</option>
+          )}
+        </select>
+      </div>
+    )
+
+    
+    console.log(this.state.categories)
+    // <div class="custom-select" style="width:200px;">
+    //   <select>
+    //     <option value="0">Select car:</option>
+    //     <option value="1">Audi</option>
+    //     <option value="2">BMW</option>
+    //     <option value="3">Citroen</option>
+    //     <option value="4">Ford</option>
+    //     <option value="5">Honda</option>
+    //     <option value="6">Jaguar</option>
+    //     <option value="7">Land Rover</option>
+    //     <option value="8">Mercedes</option>
+    //     <option value="9">Mini</option>
+    //     <option value="10">Nissan</option>
+    //     <option value="11">Toyota</option>
+    //     <option value="12">Volvo</option>
+    //   </select>
+    // </div>
+  }
+
+  //Structures results into output for endpoint 
   renderResultsData() {
     return (
       <div className="restaurant"> 
+        <div>
+          {this.renderCategories()}
+        </div>
         Results: {Object.keys(this.state.results).length}
         <div className="grid-container">
           {       
@@ -308,7 +357,7 @@ class DecadeSelector extends React.Component {
           </div>
 
           <div className="results center">
-            {this.state.resultsLength}
+            {this.state.showResults}
             <div style={{'display': 'flex', 'width': '1200px'}}>
               {this.renderResultsData()}
             </div>
