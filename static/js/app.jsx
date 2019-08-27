@@ -9,9 +9,10 @@ class App extends React.Component {
         <DecadeSelector />, 
         <RandomGenerator />, 
         <Login changeLogin={this.changeLogin} changePage={this.changePage}/>, 
-        <Register changePage={this.changePage}/>
+        <Register changePage={this.changePage}/>,
+        <SearchResult />
       ],
-      routeIndex: {'About': 0, 'Decade': 1, 'Random': 2, 'Login' : 3, 'Register': 4}, 
+      routeIndex: {'About': 0, 'Decade': 1, 'Random': 2, 'Login' : 3, 'Register': 4, 'SearchResult': 5, 'UserPage': 6}, 
       router: 0, // Nav, Login, Register 
       // results: [], // DecadeSelector
       // decade: null, // DecadeSelector
@@ -42,12 +43,19 @@ class App extends React.Component {
   }
 }
 
+
 class NavigationBar extends React.Component {
   constructor(props) {
     super(props);
     this.renderMenuButton = this.renderMenuButton.bind(this);
     this.menuButtonClicked = this.menuButtonClicked.bind(this);
-    this.state = {}
+    this.handleSearchTermChange = this.handleSearchTermChange.bind(this);
+    // this.searchTermButtonClicked = this.searchTermButtonClicked.bind(this);
+    this.renderSearchButton = this.renderSearchButton.bind(this);
+    this.state = {
+      searchTerm: "",
+      searchResults: [],
+    }
   }
 
   //Change page (state) of parent component to track what page we are on, Rendering occurs in parent component when the function is called in the parent component
@@ -59,42 +67,129 @@ class NavigationBar extends React.Component {
   renderMenuButton(route) {
     return (
       <GeneralButton 
-        value={route} className="nav-item btn btn-link nav-link" onClick={() => this.menuButtonClicked(route)} />
+        value={route} 
+        className="nav-item btn btn-link nav-link" 
+        onClick={() => this.menuButtonClicked(route)} 
+      />
         //when the menu button is clicked, we pass the route to the function changePage to change the page in App
         //This is a function callback, closure 
         //it should only call the function when the button is clicked, and allows us to pass a function
         // otherwise this function would be called immediately if used this.menuButtonClicked
-      
     )
   }
 
+  handleSearchTermChange(event) {
+    this.setState({searchTerm: event.target.value});
+    console.log(this.state.searchTerm)
+  }
+
+  searchTermButtonClicked(route) {
+    // e.preventDefault()
+    this.props.changePage(route) 
+  }
+
+  renderSearchButton(route) {
+    return (
+      <SearchButton 
+        value={route} 
+        className="nav-item btn btn-link nav-link" 
+        onClick={() => this.searchTermButtonClicked(route)} 
+      />
+    )
+  }
+
+
+  // getSearchResult(e){
+  //   e.preventDefault();
+  //   console.log('search result:' + this.state.searchTerm)
+
+  //   const urlString = '/inputs?searchterm=' + this.state.searchTerm
+  //   axios.get(urlString)
+  //   .then(response => {
+  //     // console.log(response.data)
+  //     this.setState({searchResults: response.data},
+  //       console.log(response.data)
+  //     )
+  //   })
+  //   .catch(error => {console.log(error)})
+  // }
+
   render() {
     return (
-      <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top justify-content-between">
-          <a class="navbar-brand" href="#">San Francisco Decades</a>
+      <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top justify-content-between">
+        <a className="navbar-brand" href="#">San Francisco Decades</a>
 
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-          <div class="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul class="navbar-nav">
-              <li class="nav-item"> {this.renderMenuButton('About')} </li>
-              <li class="nav-item"> {this.renderMenuButton('Decade')} </li>
-              <li class="nav-item"> {this.renderMenuButton('Random')} </li>
-              <li class="nav-item"> {this.renderMenuButton('Login')} </li>
-              <li class="nav-item"> {this.renderMenuButton('Register')} </li>
-            </ul>
-          </div>
+        <div className="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul className="navbar-nav">
+            <li className="nav-item"> {this.renderMenuButton('About')} </li>
+            <li className="nav-item"> {this.renderMenuButton('Decade')} </li>
+            <li className="nav-item"> {this.renderMenuButton('Random')} </li>
+            <li className="nav-item"> {this.renderMenuButton('Login')} </li>
+            <li className="nav-item"> {this.renderMenuButton('Register')} </li>
+          </ul>
+        </div>
 
-          <form class="form-inline">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search for restaurant" aria-label="Search" />
-            <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit"><i class="fa fa-search fa-fw"></i></button>
-          </form>
+        <form className="form-inline">
+        <input 
+          className="form-control mr-sm-2" 
+          type="search" 
+          placeholder="Search for restaurant" 
+          aria-label="Search" 
+          onChange={this.handleSearchTermChange} value={this.state.searchTerm}
+        />
+        {this.renderSearchButton}
+      </form>
       </nav>
       )
     }
 }
+
+class SearchButton extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+     return (
+      <button 
+      className="btn btn-outline-secondary my-2 my-sm-0" 
+      type="submit"
+      onClick={this.props.onClick}
+      >
+        <i className="fa fa-search fa-fw"></i>
+    </button>
+     )
+  }
+
+}
+
+
+class SearchResult extends React.Component {
+  constructor(props) {
+    super(props);    
+  }
+
+  render() {
+    return (
+      <div className="randombg paddingbg" style={{'padding': '100px 0px 0px 50px'}}>
+        <div className="container result-box">
+          <div className="center">
+            <div className="container">
+              <h1>Search Result</h1>
+              <hr />
+              <div className="center">Search Page</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
 
 class GeneralButton extends React.Component {
   constructor(props) {
@@ -114,6 +209,7 @@ class GeneralButton extends React.Component {
     )
   }
 }
+
 
 class AboutPage extends React.Component {
   constructor(props) {
@@ -165,10 +261,21 @@ class AboutPage extends React.Component {
 class DecadeSelector extends React.Component { 
   constructor(props) {
     super(props);
+    this.renderDecadeButton = this.renderDecadeButton.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.getData = this.getData.bind(this);
+    this.renderResultsData = this.renderResultsData.bind(this);
+    this.getCategories = this.getCategories.bind(this);
+    this.renderCategories = this.renderCategories.bind(this);
+    this.changeCategory = this.changeCategory.bind(this);
+    this.getCategoryData = this.getCategoryData.bind(this);
     this.state = {
-      showResults: false,
+      // showResults: true,
       results: [],
+      year: null,
       categories: [],
+      category: "Select category:",
+      categoryResults: [],
     };
   }
 
@@ -188,9 +295,10 @@ class DecadeSelector extends React.Component {
 
   //When decade button is clicked, update results using getData
   handleClick(year) {
+    // this.setState({showResults: true})
     this.getData(year)
     this.getCategories(year)
-    alert('clicked ' + year)
+    // alert('clicked ' + year)
   }
 
   //Gets results from python server and stores in this.state.results
@@ -199,13 +307,54 @@ class DecadeSelector extends React.Component {
     axios.get(urlString)
     .then(response => {
       // console.log(response.data)
-      this.setState({results: response.data, showResults: true,})
+      this.setState({results: response.data, year: year, category: "Select category:"})
     })
     .catch(error => {console.log(error)})
   }
 
+  //Structures results into output for endpoint 
+  renderResultsData() {
+    return (
+      <div className="restaurant"> 
+        <div style={{'padding': '10px'}}>
+          {this.renderCategories()}
+          Results: {Object.keys(this.state.results).length}
+        </div>
+
+        <div className="grid-container">
+          {       
+            Object.keys(this.state.results).map((key, i) => (
+              
+              <div key={key} style={{'width':'300px', 'height': '300px'}}> 
+                <p><span style={{'fontSize': '16px', 'padding': '10px', 'fontWeight': 'bold'}}>{this.state.results[key]['name']}, <br />{this.state.results[key]['dba_start_date']}</span><span></span></p>
+                <div style={{'textAlign': 'center'}}>
+                  <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
+                </div>
+                <div style={{'textAlign' : 'left', 'padding': '10px'}}>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Location: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Categories: {this.state.results[key]['categories']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Price: {this.state.results[key]['price']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Rating: {this.state.results[key]['rating']}</p>
+                </div>
+              </div> 
+            ))
+          }              
+        </div>
+      </div>
+    )
+  }
+
+  // renderResultsDataBootstrap() {
+  //   Object.keys(this.state.results).map(key => {
+  //     if (key % 4 == 3 || key == Object.keys(this.state.results).length) {
+  //       <div>key</div>
+  //     }
+  //   })
+  //   // this.setState({results: [1, 2]})
+  // }
+
   getCategories(year) {
-    const urlString = '/categories?decade=' + year
+    const urlString = '/categories?decade=' + year 
     axios.get(urlString)
     .then(response => {
       // console.log(response.data)
@@ -217,131 +366,72 @@ class DecadeSelector extends React.Component {
   renderCategories() {
     return (
       <div>
-        <select>
-          <option value="0">Select category:</option>
+        <select id="category" onChange={this.changeCategory} value={this.state.category}>
+          <option value="Select category:" disabled>Select category:</option>
           {this.state.categories.map((category) =>
-            <option value={category}>{category}</option>
+            <option key={category} value={category}>{category}</option>
           )}
         </select>
       </div>
     )
-
-    
-    console.log(this.state.categories)
-    // <div class="custom-select" style="width:200px;">
-    //   <select>
-    //     <option value="0">Select car:</option>
-    //     <option value="1">Audi</option>
-    //     <option value="2">BMW</option>
-    //     <option value="3">Citroen</option>
-    //     <option value="4">Ford</option>
-    //     <option value="5">Honda</option>
-    //     <option value="6">Jaguar</option>
-    //     <option value="7">Land Rover</option>
-    //     <option value="8">Mercedes</option>
-    //     <option value="9">Mini</option>
-    //     <option value="10">Nissan</option>
-    //     <option value="11">Toyota</option>
-    //     <option value="12">Volvo</option>
-    //   </select>
-    // </div>
   }
 
-  //Structures results into output for endpoint 
-  renderResultsData() {
-    return (
-      <div className="restaurant"> 
-        <div>
-          {this.renderCategories()}
-        </div>
-        Results: {Object.keys(this.state.results).length}
-        <div className="grid-container">
-          {       
-            Object.keys(this.state.results).map((key, i) => (
-              
-              <div key={key} style={{'width':'300px', 'height': '300px'}}> 
-                <p><span>{this.state.results[key]['name']}, <br />{this.state.results[key]['dba_start_date']}</span><span></span></p>
-                <div style={{'text-align': 'center'}}>
-                  <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
-                </div>
-                <div style={{'text-align' : 'left'}}>
-                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Neighborhood: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
-                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Categories: {this.state.results[key]['categories']}</p>
-                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Price: {this.state.results[key]['price']}</p>
-                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Rating: {this.state.results[key]['rating']}</p>
-                </div>
-              </div> 
-            ))
-          }              
-        </div>
-      </div>
+  changeCategory(event) {
+    this.setState(
+      {
+        category: event.target.value
+      },
+      
+      this.getCategoryData // callback
     )
   }
 
-  // Object.keys(this.state.results).map(key => {
-  //   if(key == 0 || key % 4 == 0) 
-  //     return <div class="row">
-  //       <div class="col-sm">
-  //         <div key={key} style={{'width':'300px', 'height': '300px'}}> 
-  //             <p><span>{this.state.results[key]['name']}, {this.state.results[key]['dba_start_date']}</span><span></span></p>
-  //             <div style={{'text-align': 'center'}}>
-  //               <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
-  //             </div>
-  //             <div style={{'text-align' : 'left'}}>
-  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Neighborhood: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
-  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Categories: {this.state.results[key]['categories']}</p>
-  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Price: {this.state.results[key]['price']}</p>
-  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Rating: {this.state.results[key]['rating']}</p>
-  //             </div>
-  //           </div> 
 
-  //     if(key % 4 == 3 || key == Object.keys(this.state.results).length - 1) 
-  //     return <div class="col-sm">
-  //         <div key={key} style={{'width':'300px', 'height': '300px'}}> 
-  //             <p><span>{this.state.results[key]['name']}, {this.state.results[key]['dba_start_date']}</span><span></span></p>
-  //             <div style={{'text-align': 'center'}}>
-  //               <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
-  //             </div>
-  //             <div style={{'text-align' : 'left'}}>
-  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Neighborhood: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
-  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Categories: {this.state.results[key]['categories']}</p>
-  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Price: {this.state.results[key]['price']}</p>
-  //               <p style={{'margin': '0px', 'padding': '0px 0px 4px 20px', 'font-size': '15px'}}>Rating: {this.state.results[key]['rating']}</p>
-  //             </div>
-  //           </div> 
-  //         </div>
-
-  
-
-  //old version of restaurant render
-  // renderResultsData() {
-  //   return (
-  //     <div className="restaurant"> 
-  //       Results: {Object.keys(this.state.results).length}
-  //       {
-  //         Object.keys(this.state.results).map((key) => ( 
-  //           <div key={key}> 
-  //             <a href={this.state.results[key]['url']}>
-  //               <img src={this.state.results[key]['image_url']} className ="food-pic" alt="" />
-  //             </a>
-  //             <p>{this.state.results[key]['dba_name']}</p>
-  //             Year: {this.state.results[key]['dba_start_date']}
-  //             Name: {this.state.results[key]['name']}
-  //             Neighborhood: {this.state.results[key]['neighborhoods_analysis_boundaries']}
-  //             Categories: {this.state.results[key]['categories']}
-  //             Coordinates: {this.state.results[key]['coordinates']}
-  //             Price: {this.state.results[key]['price']}
-  //             Rating: {this.state.results[key]['rating']}
-  //             Review count: {this.state.results[key]['review_count']}
-  //           </div> 
-  //         ))
-  //       }
-        
-  //     </div>
-  //   )
+  getCategoryData() {
+    const urlString = '/inputs?decade=' + this.state.year + '&category=' + this.state.category
+    axios.get(urlString)
+    .then(response => {
+      // console.log(response.data)
+      this.setState({results: response.data, showResults: true},
+        console.log(this.state.results)
+      )
+    })
+    .catch(error => {console.log(error)})
+  }
+  // getDataWithCategories() {
+  //   console.log(this.state.results),
+  //   console.log(this.state.category)
+  //   Object.keys(this.state.results).map(key => (
+  //     if (this.state.results[key]['categories'].includes(this.state.category))
+  //       return ()
+  //       // this.setState({
+  //       //   changeCategory: this.state.changeCategory.concat(this.state.results[key])
+  //       // })
+  //   ))
+    
   // }
 
   render() {
+    if (Object.keys(this.state.results).length == 0) {
+      return(
+        <div className="decadebg paddingbg">
+          <div className="container result-box">
+            <h1 className="center">Find Restaurants by Decade </h1>
+            <hr />
+
+            <div className="decadeSelector center">
+              {this.renderDecadeButton(1960)}<div className="divider"/>
+              {this.renderDecadeButton(1970)}<div className="divider"/>
+              {this.renderDecadeButton(1980)}<div className="divider"/>
+              {this.renderDecadeButton(1990)}<div className="divider"/>
+              {this.renderDecadeButton(2000)}
+            </div>
+
+      
+          </div>
+        </div>
+      )
+    } else {
     return (
       <div className="decadebg paddingbg">
         <div className="container result-box">
@@ -349,27 +439,25 @@ class DecadeSelector extends React.Component {
           <hr />
 
           <div className="decadeSelector center">
-            {this.renderDecadeButton(1960)}<div class="divider"/>
-            {this.renderDecadeButton(1970)}<div class="divider"/>
-            {this.renderDecadeButton(1980)}<div class="divider"/>
-            {this.renderDecadeButton(1990)}<div class="divider"/>
+            {this.renderDecadeButton(1960)}<div className="divider"/>
+            {this.renderDecadeButton(1970)}<div className="divider"/>
+            {this.renderDecadeButton(1980)}<div className="divider"/>
+            {this.renderDecadeButton(1990)}<div className="divider"/>
             {this.renderDecadeButton(2000)}
           </div>
 
           <div className="results center">
-            {this.state.showResults}
             <div style={{'display': 'flex', 'width': '1200px'}}>
               {this.renderResultsData()}
             </div>
           </div>
         </div>
       </div>
-    );
+      );
+    }
   }
+
 }
-
-
-
 
 
 class Restaurant extends React.Component {
@@ -390,13 +478,6 @@ class RandomGenerator extends React.Component {
     super(props);
     this.state = {
       randomResult: {},
-      // buttonTracker: {
-      //   1960: buttonStyle,
-      //   1970: buttonStyle,
-      //   1980: buttonStyle,
-      //   1990: buttonStyle,
-      //   2000: buttonStyle
-      // }
     };
     this.handleClick = this.handleClick.bind(this)
     this.getRandomResult = this.getRandomResult.bind(this)
@@ -405,7 +486,7 @@ class RandomGenerator extends React.Component {
 
   handleClick() {
     this.getRandomResult()
-    alert('clicked ')
+    // alert('clicked ')
   }
 
   getRandomResult() {
@@ -420,15 +501,18 @@ class RandomGenerator extends React.Component {
 
   renderResultsData() {
     return (
-      <div className="restaurant" style={{'text-align': 'center'}}> 
+      <div className="restaurant" style={{'textAlign': 'center'}}> 
         {
           Object.keys(this.state.randomResult).map((key) => ( 
             <div key={key} style={{'width':'300px'}}> 
-              <p style={{'font-size': '20px'}}>{this.state.randomResult[key]['name']}, {this.state.randomResult[key]['dba_start_date']}</p>
+              <p style={{'fontSize': '20px'}}>{this.state.randomResult[key]['name']}, {this.state.randomResult[key]['dba_start_date']}</p>
               <p><a href={this.state.randomResult[key]['url']}>
-                <img src={this.state.randomResult[key]['image_url']} className ="food-pic" alt="" />
+                <div className="img-container">
+                  <img src={this.state.randomResult[key]['image_url']} className ="food-pic" alt="" />
+                  <div className="overlay"></div>
+                </div>
               </a></p>
-              <div style={{'text-align' : 'left'}}>
+              <div style={{'textAlign' : 'left'}}>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Neighborhood: {this.state.randomResult[key]['neighborhoods_analysis_boundaries']}</p>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Categories: {this.state.randomResult[key]['categories']}</p>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Price: {this.state.randomResult[key]['price']}</p>
@@ -445,8 +529,8 @@ class RandomGenerator extends React.Component {
 
   render() {
     return (
-      <div className="randombg" style={{'padding': '100px 0px 0px 50px'}}>
-        <div className="result-box">
+      <div className="randombg paddingbg" style={{'padding': '100px 0px 0px 50px'}}>
+        <div className="container result-box">
           <div className="center">
             <div className="container">
               <h1>Pick a Restaurant at Random.</h1>
@@ -461,7 +545,6 @@ class RandomGenerator extends React.Component {
   }
 
 }
-
 
 
 class Login extends React.Component {
@@ -552,6 +635,7 @@ class Login extends React.Component {
     return (
       <GeneralButton 
         value={route} 
+        className="button-to-link"
         onClick={() => this.menuButtonClicked(route)} //it should only do the action the thing that has been clicked 
       />
     )
@@ -672,6 +756,7 @@ class Register extends React.Component {
     return (
       <GeneralButton 
         value={route} 
+        className="button-to-link"
         onClick={() => this.menuButtonClicked(route)} //it should only do the action the thing that has been clicked 
       />
     )

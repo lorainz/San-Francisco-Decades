@@ -2,23 +2,24 @@ body, html {
     height: 100%;
 }
 
-.grid-container {
-    display: grid;
-    grid-template-columns: 250px 250px 250px 250px;
-    grid-auto-rows: 500px;
-    grid-gap: 10px;
-    /* background-color: #2196F3; */
-    padding: 10px;
-    overflow: auto;
-    /* height: 100vh; */
-    max-height: 600px;
-  }
-.grid-container > div {
-    /* background-color: rgba(255, 255, 255, 0.8); */
-    text-align: center;
-    padding: 20px 0;
-    font-size: 20px;
-}
+    .grid-container {
+        display: grid;
+        grid-template-columns: 250px 250px 250px 250px;
+        grid-auto-rows: 375px;
+        grid-gap: 15px;
+        /* background-color: #2196F3; */
+        padding: 10px;
+        overflow: auto;
+        /* height: 100vh; */
+        max-height: 550px;
+        max-width: 1200px
+    }
+    .grid-container > div {
+        /* background-color: rgba(255, 255, 255, 0.8); */
+        text-align: center;
+        padding: 20px 0;
+        font-size: 20px;
+    }
 
 .aboutbg {
     background-image: url("https://images.unsplash.com/photo-1490598000245-075175152d25?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80");
@@ -98,17 +99,9 @@ div {
 
 .result-box {
     background-color: white;
-    width: 1200px;
+    width: 1400px;
     height: auto;
-    /* border: 15px solid green; */
-    padding: 20px;
-    margin: 10px;
-    background: rgba(255,255,255, 0.7)
-}
-.result-box-wide {
-    background-color: white;
-    width: 900px;
-    height: auto;
+    max-height: 800px;
     /* border: 15px solid green; */
     padding: 20px;
     margin: 10px;
@@ -130,6 +123,7 @@ div {
     /* height: 300px; */
     opacity: 0.9;
     max-height: 350px
+    
 }
 
 .food-pic-results {
@@ -142,6 +136,15 @@ div {
     margin: 0px;
     padding: 0px 0px 0px 0px;
 }
+
+.food-pic:hover {
+    opacity: 0.7;
+}
+
+.food-pic-results:hover {
+    opacity: 0.7    ;
+}
+
 
 .wide-button {
     width: 99%;
@@ -205,6 +208,17 @@ p span {
 .center {
     text-align: center
 }
+
+
+.button-to-link {
+    background: none!important;
+    border: none;
+    padding: 0!important;
+    /*input has OS specific font-family*/
+    color: #069;
+    text-decoration: underline;
+    cursor: pointer;
+  }
 
 /* .wrap-input100.rs1 {
     border-top: none;

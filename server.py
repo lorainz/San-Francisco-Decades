@@ -7,6 +7,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.exc import MultipleResultsFound
+from sqlalchemy import func #user func.lower for queries
 
 from model import Business, Review, User, Like, connect_to_db, db
 from secret import app_key
@@ -33,37 +34,114 @@ def index():
 @app.route('/inputs') 
 def inputs(): 
     """Generates results for restaurants by decade. Results rendered in Decade Selector."""
+    
+    #Decade
     search = request.args.get('decade') 
-    start = search + '-01-01'
-    end = str(int(search) + 10) + '-01-01'
+    start = None
+    end = None
+    if search != None:
+        start = search + '-01-01'
+        end = str(int(search) + 10) + '-01-01'
+
+    #Category
+    category = request.args.get('category')
+
+    #Search Term
+    search_term = request.args.get('searchterm')
+    if search_term != None:
+        search_term = search_term.strip().lower()
     # print(end)
 
-    result = (db.session
-        .query(
-        Business.ttxid, 
-        Business.dba_name, 
-        Business.dba_start_date, 
-        Business.location_start_date, 
-        Business.neighborhoods_analysis_boundaries, 
-        Review.name, 
-        Review.image_url, 
-        Review.url, Review.
-        review_count, 
-        Review.categories, 
-        Review.rating, 
-        Review.price,
-        Business.longitude,
-        Business.latitude,
-        Review.longitude,
-        Review.latitude
+    #Decade without categories
+    if category != None:
+        # print(category)
+        result = (db.session
+            .query(
+            Business.ttxid, 
+            Business.dba_name, 
+            Business.dba_start_date, 
+            Business.location_start_date, 
+            Business.neighborhoods_analysis_boundaries, 
+            Review.name, 
+            Review.image_url, 
+            Review.url, Review.
+            review_count, 
+            Review.categories, 
+            Review.rating, 
+            Review.price,
+            Business.longitude,
+            Business.latitude,
+            Review.longitude,
+            Review.latitude
+            )
+            .join(Review)
+            .filter(
+            Business.dba_start_date > start, 
+            Business.dba_start_date < end,
+            Review.categories.like(f'%{category}%'))
+            .order_by(Business.dba_start_date)
+            .all()
+        ) 
+    elif search_term != None:
+        print(search_term)
+        result = (db.session
+            .query(
+            Business.ttxid, 
+            Business.dba_name, 
+            Business.dba_start_date, 
+            Business.location_start_date, 
+            Business.neighborhoods_analysis_boundaries, 
+            Review.name, 
+            Review.image_url, 
+            Review.url, Review.
+            review_count, 
+            Review.categories, 
+            Review.rating, 
+            Review.price,
+            Business.longitude,
+            Business.latitude,
+            Review.longitude,
+            Review.latitude
+            )
+            .join(Review)
+            .filter(
+            func.lower(Review.name).like(f'%{search_term}%'))
+            .order_by(Business.dba_start_date)
+            .all()
         )
-        .join(Review)
-        .filter(
-        Business.dba_start_date > start, 
-        Business.dba_start_date < end)
-        .order_by(Business.dba_start_date)
-        .all()
-    )
+    else:
+        result = (db.session
+            .query(
+            Business.ttxid, 
+            Business.dba_name, 
+            Business.dba_start_date, 
+            Business.location_start_date, 
+            Business.neighborhoods_analysis_boundaries, 
+            Review.name, 
+            Review.image_url, 
+            Review.url, Review.
+            review_count, 
+            Review.categories, 
+            Review.rating, 
+            Review.price,
+            Business.longitude,
+            Business.latitude,
+            Review.longitude,
+            Review.latitude
+            )
+            .join(Review)
+            .filter(
+            Business.dba_start_date > start, 
+            Business.dba_start_date < end)
+            .order_by(Business.dba_start_date)
+            .all()
+        )
+    #Decade with categories
+    
+    print(category, search, search_term)
+    print(result)
+
+
     businesses = convert_list_to_dict(result)
 
     # return str(businesses)
