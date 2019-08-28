@@ -1,43 +1,85 @@
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.changePage = this.changePage.bind(this); // allows navgation menu buttons to change page
-    this.changeLogin = this.changeLogin.bind(this); // need to check this before this.state to be able to this.setState
+    // need to bind these functions before this.state to be able to this.setState
+    this.changePage = this.changePage.bind(this);
+    this.changeLogin = this.changeLogin.bind(this); 
     this.state = {
-      routes: [
-        <AboutPage changePage={this.changePage}/>,  
-        <DecadeSelector />, 
-        <RandomGenerator />, 
-        <Login changeLogin={this.changeLogin} changePage={this.changePage}/>, 
-        <Register changePage={this.changePage}/>,
-        <SearchResult />
-      ],
-      routeIndex: {'About': 0, 'Decade': 1, 'Random': 2, 'Login' : 3, 'Register': 4, 'SearchResult': 5, 'UserPage': 6}, 
       router: 0, // Nav, Login, Register 
-      // results: [], // DecadeSelector
-      // decade: null, // DecadeSelector
-      // logged_in: null, // Login
+      searchResult: [], // Search Result
+      loginEmail: null, // Login
+      userId: null, // Likes
+      userLikes: null, // Likes
+    };
+    this.route = {
+      routeIndex: {'About': 0, 'Decade': 1, 'Random': 2, 'Login' : 3, 'Register': 4, 'SearchResult': 5, 'Likes': 6}, 
     };
   }
 
+  // On page load, this loads default search for 1960 results
+
   //This is passed to PageHeader to be able to call this function when a menuButton is clicked
-  changePage(route) {
-    this.setState({router: this.state.routeIndex[route]});
-    // console.log(this.state.routeIndex, route) // test
+  changePage(route, searchResult) {
+    // console.log("CHANGE PAGE")
+    if (route === 'Login' || route === 'Likes') {
+      this.getUserLikes(this.state.userId)
+      // alert("grabbing likes")
+    }
+
+    this.setState({
+      router: this.route.routeIndex[route],
+      searchResult: searchResult,
+    });
+
+
+    console.log(this.state.searchResult)
+    // console.log(this.route.routeIndex, route) // test
+  }
+  
+  changeLogin(loginEmail, userId) {
+    // console.log("BEFORE LOGGED IN:" + status) // test
+    this.setState({
+      loginEmail: loginEmail,
+      userId: userId,
+    }); 
+    this.changePage('About', [])
+    console.log("CHANGE APP LOGIN :" + this.state.loginEmail, this.state.userId) // test
+    this.getUserLikes(this.state.userId)
   }
 
-  //
-  changeLogin(status) {
-    // console.log("BEFORE LOGGED IN:" + status) // test
-    this.setState({logged_in: status}); 
-    // console.log("LOGGED IN:" + status) // test
+  getUserLikes() {
+    console.log('get likes for user: ' + this.state.userId)
+
+    const urlString = '/getUserLikes?userid=' + this.state.userId
+    axios.get(urlString)
+    .then(response => {
+      // console.log(response.data)
+      this.setState({
+        userLikes: response.data
+      },
+        () => console.log(this.state.userLikes)
+      )
+    })
+    .catch(error => {console.log(error)})
   }
 
   render() {
+    var routes = [
+      <AboutPage changePage={this.changePage}/>,  
+      <DecadeSelector userId={this.state.userId}/>, 
+      <RandomGenerator userId={this.state.userId}/>, 
+      <Login changePage={this.changePage} changeLogin={this.changeLogin} />, 
+      <Register changePage={this.changePage}/>,
+      <SearchResult />,
+      <Likes results={this.state.userLikes} /> // loginEmail={this.state.loginEmail} userLikes={this.state.UserLikes} passes null
+    ]
+
+    // var routeIndex = {'About': 0, 'Decade': 1, 'Random': 2, 'Login' : 3, 'Register': 4, 'SearchResult': 5, 'Likes': 6}
+
     return (
       <div>
-        <NavigationBar changePage={this.changePage} />
-        {this.state.routes[this.state.router]}
+        <NavigationBar changePage={this.changePage} loginEmail={this.state.loginEmail} userId={this.state.userId}/>
+        {routes[this.state.router]}
       </div>
     )
   }
@@ -50,8 +92,8 @@ class NavigationBar extends React.Component {
     this.renderMenuButton = this.renderMenuButton.bind(this);
     this.menuButtonClicked = this.menuButtonClicked.bind(this);
     this.handleSearchTermChange = this.handleSearchTermChange.bind(this);
-    // this.searchTermButtonClicked = this.searchTermButtonClicked.bind(this);
-    this.renderSearchButton = this.renderSearchButton.bind(this);
+    this.searchTermButtonClicked = this.searchTermButtonClicked.bind(this);
+    this.getSearchResult = this.getSearchResult.bind(this);
     this.state = {
       searchTerm: "",
       searchResults: [],
@@ -63,7 +105,6 @@ class NavigationBar extends React.Component {
     this.props.changePage(route) 
   }
   
-  //
   renderMenuButton(route) {
     return (
       <GeneralButton 
@@ -80,91 +121,111 @@ class NavigationBar extends React.Component {
 
   handleSearchTermChange(event) {
     this.setState({searchTerm: event.target.value});
-    console.log(this.state.searchTerm)
+    console.log(this.state.searchTerm);
   }
 
-  searchTermButtonClicked(route) {
-    // e.preventDefault()
-    this.props.changePage(route) 
+  searchTermButtonClicked(e, route) {
+    e.preventDefault();
+    this.props.changePage(route, this.state.searchResults);
+    this.getSearchResult()
+    // console.log(this.state.searchResults)
   }
 
-  renderSearchButton(route) {
-    return (
-      <SearchButton 
-        value={route} 
-        className="nav-item btn btn-link nav-link" 
-        onClick={() => this.searchTermButtonClicked(route)} 
-      />
-    )
+  getSearchResult(){
+    console.log('search result:' + this.state.searchTerm);
+    const urlString = '/inputs?searchterm=' + this.state.searchTerm;
+    axios.get(urlString)
+    .then(response => {
+      this.setState({searchResults: response.data},
+      () => {console.log("SEARCH RESULT: "); console.log(this.state.searchResult);}
+      )
+    })
+    .catch(error => {console.log(error)})
   }
-
-
-  // getSearchResult(e){
-  //   e.preventDefault();
-  //   console.log('search result:' + this.state.searchTerm)
-
-  //   const urlString = '/inputs?searchterm=' + this.state.searchTerm
-  //   axios.get(urlString)
-  //   .then(response => {
-  //     // console.log(response.data)
-  //     this.setState({searchResults: response.data},
-  //       console.log(response.data)
-  //     )
-  //   })
-  //   .catch(error => {console.log(error)})
-  // }
 
   render() {
-    return (
-      <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top justify-content-between">
-        <a className="navbar-brand" href="#">San Francisco Decades</a>
+    if (this.props.loginEmail == null) {
+      return (
+        <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top justify-content-between">
+          <a className="navbar-brand" href="#">San Francisco Decades </a>
+  
+          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+  
+          <div className="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul className="navbar-nav">
+              <li className="nav-item"> {this.renderMenuButton('About')} </li>
+              <li className="nav-item"> {this.renderMenuButton('Decade')} </li>
+              <li className="nav-item"> {this.renderMenuButton('Random')} </li>
+              <li className="nav-item"> {this.renderMenuButton('Login')} </li>
+              <li className="nav-item"> {this.renderMenuButton('Register')} </li>
+            </ul>
+          </div>
+          <div>
+          </div>
+  
+          <form className="form-inline">
+          <input 
+            className="form-control mr-sm-2" 
+            type="search" 
+            placeholder="Search for restaurant" 
+            aria-label="Search" 
+            onChange={this.handleSearchTermChange} value={this.state.searchTerm}
+          />
+          <button 
+            value="SearchResult"
+            className="btn btn-outline-secondary my-2 my-sm-0" 
+            type="submit"
+            onClick={(e) => this.searchTermButtonClicked(e, 'SearchResult')}
+            >
+              <i className="fa fa-search fa-fw"></i>
+          </button>
+        </form>
+        </nav>
+        )
+    } else {
+      return (
+        <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top justify-content-between">
+          <a className="navbar-brand" href="#">San Francisco Decades </a>
+  
+          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+  
+          <div className="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul className="navbar-nav">
+              <li className="nav-item"> {this.renderMenuButton('About')} </li>
+              <li className="nav-item"> {this.renderMenuButton('Decade')} </li>
+              <li className="nav-item"> {this.renderMenuButton('Random')} </li>
+              <li className="nav-item"> {this.renderMenuButton('Likes')} </li>
+            </ul>
+          </div>
 
-        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbarNavDropdown">
-          <ul className="navbar-nav">
-            <li className="nav-item"> {this.renderMenuButton('About')} </li>
-            <li className="nav-item"> {this.renderMenuButton('Decade')} </li>
-            <li className="nav-item"> {this.renderMenuButton('Random')} </li>
-            <li className="nav-item"> {this.renderMenuButton('Login')} </li>
-            <li className="nav-item"> {this.renderMenuButton('Register')} </li>
-          </ul>
-        </div>
-
-        <form className="form-inline">
-        <input 
-          className="form-control mr-sm-2" 
-          type="search" 
-          placeholder="Search for restaurant" 
-          aria-label="Search" 
-          onChange={this.handleSearchTermChange} value={this.state.searchTerm}
-        />
-        {this.renderSearchButton}
-      </form>
-      </nav>
+          <p style={{'padding': '0px 40px 0px 0px'}}>Welcome back, {this.props.loginEmail}, {this.props.userId} </p>
+  
+          <form className="form-inline">
+          <input 
+            className="form-control mr-sm-2" 
+            type="search" 
+            placeholder="Search for restaurant" 
+            aria-label="Search" 
+            onChange={this.handleSearchTermChange} value={this.state.searchTerm}
+          />
+          <button 
+            value="SearchResult"
+            className="btn btn-outline-secondary my-2 my-sm-0" 
+            type="submit"
+            onClick={(e) => this.searchTermButtonClicked(e, 'SearchResult')}
+            >
+              <i className="fa fa-search fa-fw"></i>
+          </button>
+        </form>
+        </nav>
       )
     }
-}
 
-class SearchButton extends React.Component {
-  constructor(props) {
-    super(props);
   }
-
-  render() {
-     return (
-      <button 
-      className="btn btn-outline-secondary my-2 my-sm-0" 
-      type="submit"
-      onClick={this.props.onClick}
-      >
-        <i className="fa fa-search fa-fw"></i>
-    </button>
-     )
-  }
-
 }
 
 
@@ -269,6 +330,7 @@ class DecadeSelector extends React.Component {
     this.renderCategories = this.renderCategories.bind(this);
     this.changeCategory = this.changeCategory.bind(this);
     this.getCategoryData = this.getCategoryData.bind(this);
+    this.likeButtonClicked = this.likeButtonClicked.bind(this);
     this.state = {
       // showResults: true,
       results: [],
@@ -286,12 +348,6 @@ class DecadeSelector extends React.Component {
     )
   }
 
-  //On page load, this loads default search for 1960 results
-  // componentDidMount() {
-  //   window.addEventListener('load', (event) => {
-  //     this.getData(1960)
-  //   });
-  // }
 
   //When decade button is clicked, update results using getData
   handleClick(year) {
@@ -330,6 +386,14 @@ class DecadeSelector extends React.Component {
                 <div style={{'textAlign': 'center'}}>
                   <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
                 </div>
+                <button 
+                  value={this.state.results[key]['ttxid']}
+                  className="btn btn-outline-dark my-2 my-sm-0" 
+                  type="submit"
+                  onClick={(e) => this.likeButtonClicked(e)}
+                  >
+                    <i class="far fa-heart"></i>
+                </button>
                 <div style={{'textAlign' : 'left', 'padding': '10px'}}>
                   <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Location: {this.state.results[key]['neighborhoods_analysis_boundaries']}</p>
                   <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Categories: {this.state.results[key]['categories']}</p>
@@ -343,15 +407,6 @@ class DecadeSelector extends React.Component {
       </div>
     )
   }
-
-  // renderResultsDataBootstrap() {
-  //   Object.keys(this.state.results).map(key => {
-  //     if (key % 4 == 3 || key == Object.keys(this.state.results).length) {
-  //       <div>key</div>
-  //     }
-  //   })
-  //   // this.setState({results: [1, 2]})
-  // }
 
   getCategories(year) {
     const urlString = '/categories?decade=' + year 
@@ -386,7 +441,6 @@ class DecadeSelector extends React.Component {
     )
   }
 
-
   getCategoryData() {
     const urlString = '/inputs?decade=' + this.state.year + '&category=' + this.state.category
     axios.get(urlString)
@@ -398,18 +452,36 @@ class DecadeSelector extends React.Component {
     })
     .catch(error => {console.log(error)})
   }
-  // getDataWithCategories() {
-  //   console.log(this.state.results),
-  //   console.log(this.state.category)
-  //   Object.keys(this.state.results).map(key => (
-  //     if (this.state.results[key]['categories'].includes(this.state.category))
-  //       return ()
-  //       // this.setState({
-  //       //   changeCategory: this.state.changeCategory.concat(this.state.results[key])
-  //       // })
-  //   ))
-    
-  // }
+
+  likeButtonClicked(e) {
+    e.preventDefault()
+    if (this.props.userId == null) {
+      alert("Please login to like a restaurant")
+    } else {
+      this.addUserLike(this.props.userId, e.currentTarget.value) //userid, ttxid
+    }
+    // console.log(e.currentTarget.value, this.props.userId)
+  }
+
+  addUserLike(userid, ttxid) {
+    console.log("nothing")
+    axios.post('/addUserLike',{
+      userid: userid,
+      ttxid: ttxid
+    })
+    .then(response => {
+      // console.log("response:" + response.data['liked'])
+      if (response.data['liked']) {
+        alert('Thanks for liking this business! Check your like page.')
+      } else {
+        alert('You\'ve already liked this business. Check your like page.')
+      }
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  }
+
 
   render() {
     if (Object.keys(this.state.results).length == 0) {
@@ -476,12 +548,14 @@ class Restaurant extends React.Component {
 class RandomGenerator extends React.Component {
   constructor(props) {
     super(props);
+    this.handleClick = this.handleClick.bind(this);
+    this.getRandomResult = this.getRandomResult.bind(this);
+    this.renderResultsData = this.renderResultsData.bind(this);
+    this.likeButtonClicked = this.likeButtonClicked.bind(this);
+    this.addUserLike = this.addUserLike.bind(this);
     this.state = {
       randomResult: {},
     };
-    this.handleClick = this.handleClick.bind(this)
-    this.getRandomResult = this.getRandomResult.bind(this)
-    this.renderResultsData = this.renderResultsData.bind(this)
   }
 
   handleClick() {
@@ -506,13 +580,24 @@ class RandomGenerator extends React.Component {
           Object.keys(this.state.randomResult).map((key) => ( 
             <div key={key} style={{'width':'300px'}}> 
               <p style={{'fontSize': '20px'}}>{this.state.randomResult[key]['name']}, {this.state.randomResult[key]['dba_start_date']}</p>
-              <p><a href={this.state.randomResult[key]['url']}>
+              <div><a href={this.state.randomResult[key]['url']}>
                 <div className="img-container">
                   <img src={this.state.randomResult[key]['image_url']} className ="food-pic" alt="" />
                   <div className="overlay"></div>
                 </div>
-              </a></p>
+              </a></div>
+              <div style={{'padding': '10px 0px 10px 0px'}}>
+                <button 
+                  value={this.state.randomResult[key]['ttxid']}
+                  className="btn btn-outline-dark my-2 my-sm-0" 
+                  type="submit"
+                  onClick={(e) => this.likeButtonClicked(e)}
+                  >
+                    <i class="far fa-heart"></i>
+                </button>
+              </div>
               <div style={{'textAlign' : 'left'}}>
+              <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>ttxid: {this.state.randomResult[key]['ttxid']}</p>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Neighborhood: {this.state.randomResult[key]['neighborhoods_analysis_boundaries']}</p>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Categories: {this.state.randomResult[key]['categories']}</p>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Price: {this.state.randomResult[key]['price']}</p>
@@ -526,6 +611,34 @@ class RandomGenerator extends React.Component {
     )
   }
 
+  likeButtonClicked(e) {
+    e.preventDefault()
+    if (this.props.userId == null) {
+      alert("Please login to like a restaurant")
+    } else {
+      this.addUserLike(this.props.userId, e.currentTarget.value) //userid, ttxid
+    }
+    // console.log(e.currentTarget.value, this.props.userId)
+  }
+
+  addUserLike(userid, ttxid) {
+    console.log("nothing")
+    axios.post('/addUserLike',{
+      userid: userid,
+      ttxid: ttxid
+    })
+    .then(response => {
+      // console.log("response:" + response.data['liked'])
+      if (response.data['liked']) {
+        alert('Thanks for liking this business! Check your like page.')
+      } else {
+        alert('You\'ve already liked this business. Check your like page.')
+      }
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  }
 
   render() {
     return (
@@ -547,11 +660,46 @@ class RandomGenerator extends React.Component {
 }
 
 
+  // getDataWithCategories() {
+  //   console.log(this.state.results),
+  //   console.log(this.state.category)
+  //   Object.keys(this.state.results).map(key => (
+  //     if (this.state.results[key]['categories'].includes(this.state.category))
+  //       return ()
+  //       // this.setState({
+  //       //   changeCategory: this.state.changeCategory.concat(this.state.results[key])
+  //       // })
+  //   ))
+    
+  // }
+
+    // renderResultsDataBootstrap() {
+  //   Object.keys(this.state.results).map(key => {
+  //     if (key % 4 == 3 || key == Object.keys(this.state.results).length) {
+  //       <div>key</div>
+  //     }
+  //   })
+  //   // this.setState({results: [1, 2]})
+  // }
+
+
+  //On page load, this loads default search for 1960 results
+  // componentDidMount() {
+  //   window.addEventListener('load', (event) => {
+  //     this.getData(1960)
+  //   });
+  // }
+
 class Login extends React.Component {
   constructor(props) {
     super(props);
     this.menuButtonClicked = this.menuButtonClicked.bind(this)
     this.renderMenuButton = this.renderMenuButton.bind(this)  
+    this.handleEmailChange = this.handleEmailChange.bind(this);
+    this.handlePasswordChange = this.handlePasswordChange.bind(this);
+    this.loginUser = this.loginUser.bind(this);
+    this.loginUserPost = this.loginUserPost.bind(this);
+    // this.updateLoginStatus = this.updateLoginStatus.bind(this)
     this.state = {
       email: "",
       password: "",
@@ -560,11 +708,7 @@ class Login extends React.Component {
       showMessage: true,
       message: "",
     }
-    this.handleEmailChange = this.handleEmailChange.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
-    this.loginUser = this.loginUser.bind(this);
-    this.loginUserPost = this.loginUserPost.bind(this);
-    this.updateLoginStatus = this.updateLoginStatus.bind(this);
+
   }
 
   handleEmailChange(event) {
@@ -609,21 +753,24 @@ class Login extends React.Component {
       this.setState({
         loggedIn: response.data['logged_in'],
         userId: response.data['user_id'],
-        message: response.data['message']
+        message: response.data['message'],
+        loginEmail: response.data['email']
       })
-      console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'])
+      console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'], response.data['email'])
       console.log("state: ", this.state.loggedIn, this.state.userId, this.state.message)
+      this.props.changeLogin(this.state.loginEmail, this.state.userId)
+
     })
-    .catch(error => {
+    .catch(error => { 
       console.log(error)
     })
   }
 
-  updateLoginStatus(login) {
-    // console.log("before" + login)
-    this.props.changeLogin(login)
-    // console.log("after" + login)
-  }
+  // updateLoginStatus(login) {
+  //   // console.log("before" + login)
+  //   this.props.changeLogin(login)
+  //   // console.log("after" + login)
+  // }
 
   menuButtonClicked(route) {
     this.props.changePage(route) 
@@ -809,6 +956,60 @@ class FlashMessage extends React.Component {
     return (
       <div className="flash"> {this.props.showMessage && <div className="error-message">{this.props.message}</div>}</div>
     );
+  }
+}
+
+class Likes extends React.Component {
+  constructor(props) {
+    super(props);    
+  }
+
+  renderResultsData() {
+    return (
+      <div className="restaurant"> 
+        <div style={{'padding': '10px'}}>
+          Results: {Object.keys(this.props.results).length}
+        </div>
+
+        <div className="grid-container">
+          {       
+            Object.keys(this.props.results).map((key, i) => (
+              
+              <div key={key} style={{'width':'300px', 'height': '300px'}}> 
+                <p><span style={{'fontSize': '16px', 'padding': '10px', 'fontWeight': 'bold'}}>{this.props.results[key]['name']}, <br />{this.props.results[key]['dba_start_date']}</span><span></span></p>
+                <div style={{'textAlign': 'center'}}>
+                  <p><a href={this.props.results[key]['url']}><img src={this.props.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
+                </div>
+                <div style={{'textAlign' : 'left', 'padding': '10px'}}>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Location: {this.props.results[key]['neighborhoods_analysis_boundaries']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Categories: {this.props.results[key]['categories']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Price: {this.props.results[key]['price']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Rating: {this.props.results[key]['rating']}</p>
+                </div>
+              </div> 
+            ))
+          }              
+        </div>
+      </div>
+    )
+  }
+
+  render() {
+    return (
+      <div className="loginbg paddingbg" style={{'padding': '100px 0px 0px 50px'}}>
+        <div className="container result-box">
+          <div className="center">
+            <div className="container">
+              <h1>Likes</h1>
+              <hr />
+              <div className="center">Like Page</div>
+              <div className="center">{this.props.userId}</div>
+              <div className="center">{this.renderResultsData()}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 }
 

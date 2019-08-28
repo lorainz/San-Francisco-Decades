@@ -36,12 +36,12 @@ def inputs():
     """Generates results for restaurants by decade. Results rendered in Decade Selector."""
     
     #Decade
-    search = request.args.get('decade') 
+    decade = request.args.get('decade') 
     start = None
     end = None
-    if search != None:
-        start = search + '-01-01'
-        end = str(int(search) + 10) + '-01-01'
+    if decade != None:
+        start = decade + '-01-01'
+        end = str(int(decade) + 10) + '-01-01'
 
     #Category
     category = request.args.get('category')
@@ -53,7 +53,35 @@ def inputs():
     # print(end)
 
     #Decade without categories
-    if category != None:
+    if search_term != None:
+        print(search_term)
+        result = (db.session
+            .query(
+            Business.ttxid, 
+            Business.dba_name, 
+            Business.dba_start_date, 
+            Business.location_start_date, 
+            Business.neighborhoods_analysis_boundaries, 
+            Review.name, 
+            Review.image_url, 
+            Review.url, Review.
+            review_count, 
+            Review.categories, 
+            Review.rating, 
+            Review.price,
+            Business.longitude,
+            Business.latitude,
+            Review.longitude,
+            Review.latitude
+            )
+            .join(Review)
+            .filter(
+            func.lower(Review.name).like(f'%{search_term}%'))
+            .order_by(Business.dba_start_date)
+            .all()
+            ) 
+        print("search")
+    elif category != None:
         # print(category)
         result = (db.session
             .query(
@@ -82,34 +110,8 @@ def inputs():
             .order_by(Business.dba_start_date)
             .all()
         ) 
-    elif search_term != None:
-        print(search_term)
-        result = (db.session
-            .query(
-            Business.ttxid, 
-            Business.dba_name, 
-            Business.dba_start_date, 
-            Business.location_start_date, 
-            Business.neighborhoods_analysis_boundaries, 
-            Review.name, 
-            Review.image_url, 
-            Review.url, Review.
-            review_count, 
-            Review.categories, 
-            Review.rating, 
-            Review.price,
-            Business.longitude,
-            Business.latitude,
-            Review.longitude,
-            Review.latitude
-            )
-            .join(Review)
-            .filter(
-            func.lower(Review.name).like(f'%{search_term}%'))
-            .order_by(Business.dba_start_date)
-            .all()
-        )
-    else:
+        print("category")
+    elif decade != None:
         result = (db.session
             .query(
             Business.ttxid, 
@@ -136,10 +138,15 @@ def inputs():
             .order_by(Business.dba_start_date)
             .all()
         )
+        print("decade")
+    else:
+        print("none")
+        return None
     #Decade with categories
     
-    print(category, search, search_term)
+    
     print(result)
+    print(category, decade, search_term)
 
 
     businesses = convert_list_to_dict(result)
@@ -350,17 +357,27 @@ def login():
         return jsonify({
             'user_id': session['user_id'], 
             'logged_in': True,
-            'message': 'You\'re already logged in'
+            'message': 'You\'re already logged in',
+            'email': registered_user.email
         })
     else:
         if registered_user == None: 
             flash('User not found. Please register.')
         else: 
             if registered_user.email == email and registered_user.password == password:
+
                 session['user_id'] = registered_user.user_id
                 print("Logged in " + str(session['user_id']))
-                return jsonify([session['user_id'], True])
-                flash('You\'re logged in')
+                # return jsonify(
+                #     [session['user_id'], 
+                #     True]
+                # )
+                return jsonify({
+                    'user_id': session['user_id'], 
+                    'logged_in': True,
+                    'message': 'Successful login!',
+                    'email': registered_user.email
+                })
 
     return jsonify([None, False])
 
@@ -399,6 +416,103 @@ def register_user(email, password):
     # flash("Registration success. Please log in.")
     db.session.commit()
     print(email + "SUCCESS")
+
+@app.route('/addUserLike', methods=['GET', 'POST'])
+def addUserLike():
+    """Add user like"""
+    # if request.method == "GET":
+    #     email = request.form.get('email')
+    #     password = request.form.get('password')
+
+    if request.method == "POST":
+        # print('GET USERID AND TTXID')
+        # print(request.data); # returns byte string literal
+        response = request.json
+        user_id = request.json['userid']
+        ttxid = request.json['ttxid']
+
+        print("response: ", response); # json
+        print("inputs: ", user_id, ttxid)
+
+    user_like = Like.query.filter(Like.user_id == user_id, Like.ttxid == ttxid).first()
+    print("verify not in database: ", user_like)
+
+    if user_like == None:
+        add_user_like(user_id, ttxid)
+        return jsonify({
+            'liked': True
+        })
+    else:
+        # flash("Email already in use. Please log in.")
+        return jsonify({
+            'liked': False
+        })
+        
+    # return jsonify(response)
+
+
+def add_user_like(user_id, ttxid):
+    new_user_like = Like(user_id=user_id, ttxid=ttxid)
+    db.session.add(new_user_like)
+    # flash("Registration success. Please log in.")
+    db.session.commit()
+    print(str(user_id) + " " + ttxid + "SUCCESS")
+
+@app.route('/getUserLikes') 
+def getUserLikes(): 
+    """Get user like."""
+    #Decade
+    user_id = request.args.get('userid') 
+
+    # user_likes = Like.query.filter(Like.user_id == user_id).all()
+    likes = (db.session
+            .query(Like.ttxid)
+            .filter(Like.user_id == user_id)
+            .all()
+            ) 
+
+    list_ttxid = get_list_like_restaurants(likes)
+    # print(user_id)
+    # print(likes)
+    # print("New_dict", list_ttxid)
+
+    result = (db.session
+        .query(
+        Business.ttxid, 
+        Business.dba_name, 
+        Business.dba_start_date, 
+        Business.location_start_date, 
+        Business.neighborhoods_analysis_boundaries, 
+        Review.name, 
+        Review.image_url, 
+        Review.url, Review.
+        review_count, 
+        Review.categories, 
+        Review.rating, 
+        Review.price,
+        Business.longitude,
+        Business.latitude,
+        Review.longitude,
+        Review.latitude
+        )
+        .join(Review)
+        .filter(
+        Business.ttxid.in_(list_ttxid))
+        .order_by(Business.dba_start_date)
+        .all()
+    )
+
+    businesses = convert_list_to_dict(result)
+    # print(businesses)
+    
+    return jsonify(businesses)
+
+def get_list_like_restaurants(likes):
+    new_list = []
+    for ttxid in likes:
+        new_list.append(ttxid[0])
+
+    return new_list;
 
 
 if __name__ == "__main__":
