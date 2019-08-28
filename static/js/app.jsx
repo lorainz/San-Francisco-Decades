@@ -13,6 +13,7 @@ class App extends React.Component {
       loginEmail: null, // Login
       userId: null, // Likes
       userLikes: null, // Likes
+      userLikesList: [], // decade selector and random generator 
     };
     this.route = {
       routeIndex: {'About': 0, 'Decade': 1, 'Random': 2, 'Login' : 3, 'Register': 4, 'SearchResult': 5, 'Likes': 6}, 
@@ -57,9 +58,10 @@ class App extends React.Component {
     .then(response => {
       // console.log(response.data)
       this.setState({
-        userLikes: response.data
+        userLikes: response.data['userlikes'],
+        userLikesList: response.data['userlikeslist']
       },
-        () => console.log(this.state.userLikes)
+        () => console.log(this.state.userLikesList)
       )
     })
     .catch(error => {console.log(error)})
@@ -85,8 +87,8 @@ class App extends React.Component {
   render() {
     var routes = [
       <AboutPage changePage={this.changePage}/>,  
-      <DecadeSelector userId={this.state.userId}/>, 
-      <RandomGenerator userId={this.state.userId}/>, 
+      <DecadeSelector userId={this.state.userId} userLikesList={this.state.userLikesList}/>, 
+      <RandomGenerator userId={this.state.userId} userLikesList={this.state.userLikesList}/>, 
       <Login changePage={this.changePage} changeLogin={this.changeLogin} />, 
       <Register changePage={this.changePage}/>,
       <SearchResult results={this.state.searchResults}/>,
@@ -651,8 +653,8 @@ class RandomGenerator extends React.Component {
     this.handleClick = this.handleClick.bind(this);
     this.getRandomResult = this.getRandomResult.bind(this);
     this.renderResultsData = this.renderResultsData.bind(this);
-    this.likeButtonClicked = this.likeButtonClicked.bind(this);
     this.addUserLike = this.addUserLike.bind(this);
+    this.likeButtonClicked = this.likeButtonClicked.bind(this);
     this.state = {
       randomResult: {},
     };
@@ -697,7 +699,6 @@ class RandomGenerator extends React.Component {
                 </button>
               </div>
               <div style={{'textAlign' : 'left'}}>
-              <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>ttxid: {this.state.randomResult[key]['ttxid']}</p>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Neighborhood: {this.state.randomResult[key]['neighborhoods_analysis_boundaries']}</p>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Categories: {this.state.randomResult[key]['categories']}</p>
                 <p style={{'margin': '0px', 'padding': '0px 0px 4px 25px'}}>Price: {this.state.randomResult[key]['price']}</p>
@@ -710,6 +711,7 @@ class RandomGenerator extends React.Component {
       </div>
     )
   }
+
 
   likeButtonClicked(e) {
     e.preventDefault()
@@ -759,6 +761,45 @@ class RandomGenerator extends React.Component {
 
 }
 
+{/* <LikeButton 
+  value={this.state.randomResult[key]['ttxid']}
+  liked={true}
+  type="submit"
+  onClick={(e) => this.likeButtonClicked(e)}
+/> */}
+
+
+// class LikeButton extends React.Component {
+//   constructor(props) {
+//     super(props);
+//   }
+//   render() {
+//     if (this.props.liked) {
+//       return (
+//         <button 
+//         value={this.props.ttxid}
+//         className="btn btn-dark my-2 my-sm-0" 
+//         type="submit"
+//         onClick={this.props.onClick}
+//       >
+//           <i class="far fa-heart"></i>
+//       </button>
+//       )
+//     } else {
+//       return (
+//         <button 
+//         value={this.props.ttxid}
+//         className="btn btn-outline-dark my-2 my-sm-0" 
+//         type="submit"
+//         onClick={this.props.onClick}
+//       >
+//           <i class="far fa-heart"></i>
+//       </button>
+//       )
+//     }
+    
+//   }
+// }
 
   // getDataWithCategories() {
   //   console.log(this.state.results),

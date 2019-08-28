@@ -518,14 +518,26 @@ def getUserLikes():
     )
 
     businesses = convert_list_to_dict(result)
+    ttxids = get_list_of_ttxids(result)
     # print(businesses)
     
-    return jsonify(businesses)
+    return jsonify({
+        'userlikes': businesses,
+        'userlikeslist': ttxids
+    })
 
 def get_list_like_restaurants(likes):
     new_list = []
     for ttxid in likes:
         new_list.append(ttxid[0])
+
+    return new_list;
+
+def get_list_of_ttxids(result):
+    new_list = []
+
+    for i, item in enumerate(result):
+        new_list.append(result[i][0])
 
     return new_list;
 
