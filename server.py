@@ -271,7 +271,7 @@ def convert_list_to_dict(result):
         else:
             rating_score = result[i][10]
 
-        if result[i][6] == "":
+        if result[i][6] == "" or result[i][6] == None:
             img_url = './static/img/imagenotfound.png'
         else:
             img_url = result[i][6]
