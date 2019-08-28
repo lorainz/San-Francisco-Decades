@@ -271,7 +271,7 @@ def convert_list_to_dict(result):
         else:
             rating_score = result[i][10]
 
-        if result[i][6] == None:
+        if result[i][6] == "":
             img_url = './static/img/imagenotfound.png'
         else:
             img_url = result[i][6]
@@ -291,7 +291,7 @@ def convert_list_to_dict(result):
             'price': result[i][11],
             'coordinates': coordinates 
         }
-    
+
     return new_dict;
 
 def convert_one_to_dict(result):
@@ -378,6 +378,21 @@ def login():
                     'message': 'Successful login!',
                     'email': registered_user.email
                 })
+
+    return jsonify([None, False])
+
+@app.route('/logout')
+def logout():
+    """Log out user"""
+
+    session.clear()
+    print(session)
+    return jsonify({
+        'user_id': session.get('user_id', None), 
+        'logged_in': False,
+        'email': None
+    })
+
 
     return jsonify([None, False])
 

@@ -2,24 +2,24 @@ body, html {
     height: 100%;
 }
 
-    .grid-container {
-        display: grid;
-        grid-template-columns: 250px 250px 250px 250px;
-        grid-auto-rows: 375px;
-        grid-gap: 15px;
-        /* background-color: #2196F3; */
-        padding: 10px;
-        overflow: auto;
-        /* height: 100vh; */
-        max-height: 550px;
-        max-width: 1200px
-    }
-    .grid-container > div {
-        /* background-color: rgba(255, 255, 255, 0.8); */
-        text-align: center;
-        padding: 20px 0;
-        font-size: 20px;
-    }
+.grid-container {
+    display: grid;
+    grid-template-columns: 250px 250px 250px 250px;
+    grid-auto-rows: 400px;
+    grid-gap: 15px;
+    /* background-color: #2196F3; */
+    padding: 10px;
+    overflow: auto;
+    /* height: 100vh; */
+    max-height: 550px;
+    max-width: 1200px
+}
+.grid-container > div {
+    /* background-color: rgba(255, 255, 255, 0.8); */
+    text-align: center;
+    padding: 20px 0;
+    font-size: 20px;
+}
 
 .aboutbg {
     background-image: url("https://images.unsplash.com/photo-1490598000245-075175152d25?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80");
@@ -58,6 +58,23 @@ body, html {
     background-image: url("https://images.unsplash.com/photo-1464377923503-30662ced60b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80");
     height: 100vh;
     /* width: 95vh; */
+    background-position: 0% 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.searchbg {
+    background-image: url("https://images.unsplash.com/photo-1477842118926-177c05d856b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1931&q=80");
+    height: 100vh;
+    /* width: 95vh; */
+    background-position: 0% 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.likebg {
+    background-image: url("https://images.unsplash.com/photo-1518664196161-4bef8d483164?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2098&q=80");
+    height: 100vh;
     background-position: 0% 100%;
     background-repeat: no-repeat;
     background-size: cover;

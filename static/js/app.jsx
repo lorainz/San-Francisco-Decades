@@ -4,9 +4,12 @@ class App extends React.Component {
     // need to bind these functions before this.state to be able to this.setState
     this.changePage = this.changePage.bind(this);
     this.changeLogin = this.changeLogin.bind(this); 
+    this.getUserLikes = this.getUserLikes.bind(this);
+    this.updateSearchResults = this.updateSearchResults.bind(this);
+    this.logout = this.logout.bind(this);
     this.state = {
       router: 0, // Nav, Login, Register 
-      searchResult: [], // Search Result
+      searchResults: [], // Search Result
       loginEmail: null, // Login
       userId: null, // Likes
       userLikes: null, // Likes
@@ -28,11 +31,10 @@ class App extends React.Component {
 
     this.setState({
       router: this.route.routeIndex[route],
-      searchResult: searchResult,
+      searchResults: searchResult
     });
 
-
-    console.log(this.state.searchResult)
+    // console.log(this.state.searchResults)
     // console.log(this.route.routeIndex, route) // test
   }
   
@@ -63,6 +65,23 @@ class App extends React.Component {
     .catch(error => {console.log(error)})
   }
 
+  updateSearchResults(data) {
+    this.setState({searchResults: data},
+      // () => {
+      //   console.log("APP SEARCH RESULTS:")
+      //   console.log(this.state.searchResults)
+      // }
+    ) 
+  }
+
+  logout() {
+    this.setState({
+      loginEmail: null,
+      userId: null,
+      userLikes: null
+    })
+  }
+
   render() {
     var routes = [
       <AboutPage changePage={this.changePage}/>,  
@@ -70,7 +89,7 @@ class App extends React.Component {
       <RandomGenerator userId={this.state.userId}/>, 
       <Login changePage={this.changePage} changeLogin={this.changeLogin} />, 
       <Register changePage={this.changePage}/>,
-      <SearchResult />,
+      <SearchResult results={this.state.searchResults}/>,
       <Likes results={this.state.userLikes} /> // loginEmail={this.state.loginEmail} userLikes={this.state.UserLikes} passes null
     ]
 
@@ -78,7 +97,13 @@ class App extends React.Component {
 
     return (
       <div>
-        <NavigationBar changePage={this.changePage} loginEmail={this.state.loginEmail} userId={this.state.userId}/>
+        <NavigationBar 
+          changePage={this.changePage} 
+          loginEmail={this.state.loginEmail} 
+          userId={this.state.userId} 
+          updateSearchResults={this.updateSearchResults}
+          logout={this.logout}
+        />
         {routes[this.state.router]}
       </div>
     )
@@ -94,6 +119,7 @@ class NavigationBar extends React.Component {
     this.handleSearchTermChange = this.handleSearchTermChange.bind(this);
     this.searchTermButtonClicked = this.searchTermButtonClicked.bind(this);
     this.getSearchResult = this.getSearchResult.bind(this);
+    this.logout = this.logout.bind(this);
     this.state = {
       searchTerm: "",
       searchResults: [],
@@ -119,9 +145,37 @@ class NavigationBar extends React.Component {
     )
   }
 
+  renderLogoutButton(route) {
+    return (
+      <GeneralButton 
+        value={route} 
+        className="nav-item btn btn-link nav-link" 
+        onClick={() => {
+          this.menuButtonClicked('About');
+          this.logout();
+        }} 
+      />
+        //when the menu button is clicked, we pass the route to the function changePage to change the page in App
+        //This is a function callback, closure 
+        //it should only call the function when the button is clicked, and allows us to pass a function
+        // otherwise this function would be called immediately if used this.menuButtonClicked
+    )
+  }
+
+  logout() {
+    const urlString = '/logout'
+    axios.get(urlString)
+    .then(response => {
+      console.log("LOGOUT:");
+      console.log(response.data);
+      this.props.logout()
+      })
+    .catch(error => {console.log(error)})
+  }
+
   handleSearchTermChange(event) {
     this.setState({searchTerm: event.target.value});
-    console.log(this.state.searchTerm);
+    // console.log(this.state.searchTerm);
   }
 
   searchTermButtonClicked(e, route) {
@@ -132,12 +186,17 @@ class NavigationBar extends React.Component {
   }
 
   getSearchResult(){
-    console.log('search result:' + this.state.searchTerm);
+    // console.log('search result:' + this.state.searchTerm);
     const urlString = '/inputs?searchterm=' + this.state.searchTerm;
     axios.get(urlString)
     .then(response => {
       this.setState({searchResults: response.data},
-      () => {console.log("SEARCH RESULT: "); console.log(this.state.searchResult);}
+      () => {
+        // console.log("SUCCEEDED GET REQUEST: ");
+        // console.log(this.state.searchResults);
+        this.props.updateSearchResults(this.state.searchResults);
+      }
+      // {console.log("SEARCH RESULT: "); console.log(this.state.searchResults);}
       )
     })
     .catch(error => {console.log(error)})
@@ -199,6 +258,7 @@ class NavigationBar extends React.Component {
               <li className="nav-item"> {this.renderMenuButton('Decade')} </li>
               <li className="nav-item"> {this.renderMenuButton('Random')} </li>
               <li className="nav-item"> {this.renderMenuButton('Likes')} </li>
+              <li className="nav-item"> {this.renderLogoutButton('Logout')} </li>
             </ul>
           </div>
 
@@ -231,18 +291,58 @@ class NavigationBar extends React.Component {
 
 class SearchResult extends React.Component {
   constructor(props) {
-    super(props);    
+    super(props);   
+    this.renderResultsData = this.renderResultsData.bind(this); 
+  }
+
+  //Structures results into output for endpoint 
+  renderResultsData() {
+    return (
+      <div className="restaurant"> 
+        <div style={{'padding': '10px'}}>
+          Results: {Object.keys(this.props.results).length}
+        </div>
+
+        <div className="grid-container">
+          {       
+            Object.keys(this.props.results).map((key) => (
+              
+              <div key={key} style={{'width':'300px', 'height': '300px'}}> 
+                <p><span style={{'fontSize': '16px', 'padding': '10px', 'fontWeight': 'bold'}}>{this.props.results[key]['name']} <br />{this.props.results[key]['dba_start_date']}</span><span></span></p>
+                <div style={{'textAlign': 'center'}}>
+                  <p><a href={this.props.results[key]['url']}><img src={this.props.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
+                </div>
+                <button 
+                  value={this.props.results[key]['ttxid']}
+                  className="btn btn-outline-dark my-2 my-sm-0" 
+                  type="submit"
+                  onClick={(e) => this.likeButtonClicked(e)}
+                  >
+                    <i class="far fa-heart"></i>
+                </button>
+                <div style={{'textAlign' : 'left', 'padding': '10px'}}>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Location: {this.props.results[key]['neighborhoods_analysis_boundaries']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Categories: {this.props.results[key]['categories']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Price: {this.props.results[key]['price']}</p>
+                  <p style={{'margin': '0px', 'padding': '0px 0px 4px 40px', 'fontSize': '15px'}}>Rating: {this.props.results[key]['rating']}</p>
+                </div>
+              </div> 
+            ))
+          }              
+        </div>
+      </div>
+    )
   }
 
   render() {
     return (
-      <div className="randombg paddingbg" style={{'padding': '100px 0px 0px 50px'}}>
+      <div className="searchbg paddingbg" style={{'padding': '100px 0px 0px 50px'}}>
         <div className="container result-box">
           <div className="center">
             <div className="container">
               <h1>Search Result</h1>
               <hr />
-              <div className="center">Search Page</div>
+              <div className="center">{this.renderResultsData()}</div>
             </div>
           </div>
         </div>
@@ -382,7 +482,7 @@ class DecadeSelector extends React.Component {
             Object.keys(this.state.results).map((key, i) => (
               
               <div key={key} style={{'width':'300px', 'height': '300px'}}> 
-                <p><span style={{'fontSize': '16px', 'padding': '10px', 'fontWeight': 'bold'}}>{this.state.results[key]['name']}, <br />{this.state.results[key]['dba_start_date']}</span><span></span></p>
+                <p><span style={{'fontSize': '16px', 'padding': '10px', 'fontWeight': 'bold'}}>{this.state.results[key]['name']} <br />{this.state.results[key]['dba_start_date']}</span><span></span></p>
                 <div style={{'textAlign': 'center'}}>
                   <p><a href={this.state.results[key]['url']}><img src={this.state.results[key]['image_url']} className="food-pic-results" alt="" /></a></p>
                 </div>
@@ -996,7 +1096,7 @@ class Likes extends React.Component {
 
   render() {
     return (
-      <div className="loginbg paddingbg" style={{'padding': '100px 0px 0px 50px'}}>
+      <div className="likebg paddingbg" style={{'padding': '100px 0px 0px 50px'}}>
         <div className="container result-box">
           <div className="center">
             <div className="container">
