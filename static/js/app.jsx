@@ -761,75 +761,6 @@ class RandomGenerator extends React.Component {
 
 }
 
-{/* <LikeButton 
-  value={this.state.randomResult[key]['ttxid']}
-  liked={true}
-  type="submit"
-  onClick={(e) => this.likeButtonClicked(e)}
-/> */}
-
-
-// class LikeButton extends React.Component {
-//   constructor(props) {
-//     super(props);
-//   }
-//   render() {
-//     if (this.props.liked) {
-//       return (
-//         <button 
-//         value={this.props.ttxid}
-//         className="btn btn-dark my-2 my-sm-0" 
-//         type="submit"
-//         onClick={this.props.onClick}
-//       >
-//           <i class="far fa-heart"></i>
-//       </button>
-//       )
-//     } else {
-//       return (
-//         <button 
-//         value={this.props.ttxid}
-//         className="btn btn-outline-dark my-2 my-sm-0" 
-//         type="submit"
-//         onClick={this.props.onClick}
-//       >
-//           <i class="far fa-heart"></i>
-//       </button>
-//       )
-//     }
-    
-//   }
-// }
-
-  // getDataWithCategories() {
-  //   console.log(this.state.results),
-  //   console.log(this.state.category)
-  //   Object.keys(this.state.results).map(key => (
-  //     if (this.state.results[key]['categories'].includes(this.state.category))
-  //       return ()
-  //       // this.setState({
-  //       //   changeCategory: this.state.changeCategory.concat(this.state.results[key])
-  //       // })
-  //   ))
-    
-  // }
-
-    // renderResultsDataBootstrap() {
-  //   Object.keys(this.state.results).map(key => {
-  //     if (key % 4 == 3 || key == Object.keys(this.state.results).length) {
-  //       <div>key</div>
-  //     }
-  //   })
-  //   // this.setState({results: [1, 2]})
-  // }
-
-
-  //On page load, this loads default search for 1960 results
-  // componentDidMount() {
-  //   window.addEventListener('load', (event) => {
-  //     this.getData(1960)
-  //   });
-  // }
 
 class Login extends React.Component {
   constructor(props) {
@@ -1163,6 +1094,78 @@ ReactDOM.render(
 
 
 //-------------------- OLD CODE --------------------------
+
+/* <LikeButton 
+  value={this.state.randomResult[key]['ttxid']}
+  liked={true}
+  type="submit"
+  onClick={(e) => this.likeButtonClicked(e)}
+/> */
+
+
+// class LikeButton extends React.Component {
+//   constructor(props) {
+//     super(props);
+//   }
+//   render() {
+//     if (this.props.liked) {
+//       return (
+//         <button 
+//         value={this.props.ttxid}
+//         className="btn btn-dark my-2 my-sm-0" 
+//         type="submit"
+//         onClick={this.props.onClick}
+//       >
+//           <i class="far fa-heart"></i>
+//       </button>
+//       )
+//     } else {
+//       return (
+//         <button 
+//         value={this.props.ttxid}
+//         className="btn btn-outline-dark my-2 my-sm-0" 
+//         type="submit"
+//         onClick={this.props.onClick}
+//       >
+//           <i class="far fa-heart"></i>
+//       </button>
+//       )
+//     }
+    
+//   }
+// }
+
+  // getDataWithCategories() {
+  //   console.log(this.state.results),
+  //   console.log(this.state.category)
+  //   Object.keys(this.state.results).map(key => (
+  //     if (this.state.results[key]['categories'].includes(this.state.category))
+  //       return ()
+  //       // this.setState({
+  //       //   changeCategory: this.state.changeCategory.concat(this.state.results[key])
+  //       // })
+  //   ))
+    
+  // }
+
+    // renderResultsDataBootstrap() {
+  //   Object.keys(this.state.results).map(key => {
+  //     if (key % 4 == 3 || key == Object.keys(this.state.results).length) {
+  //       <div>key</div>
+  //     }
+  //   })
+  //   // this.setState({results: [1, 2]})
+  // }
+
+
+  //On page load, this loads default search for 1960 results
+  // componentDidMount() {
+  //   window.addEventListener('load', (event) => {
+  //     this.getData(1960)
+  //   });
+  // }
+
+  
 // class PageHeader extends React.Component {
 //   constructor(props) {
 //     super(props);
