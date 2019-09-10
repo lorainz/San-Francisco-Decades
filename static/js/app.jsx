@@ -91,7 +91,7 @@ class App extends React.Component {
       <RandomGenerator userId={this.state.userId} userLikesList={this.state.userLikesList}/>, 
       <Login changePage={this.changePage} changeLogin={this.changeLogin} />, 
       <Register changePage={this.changePage}/>,
-      <SearchResult results={this.state.searchResults}/>,
+      <SearchResult userId={this.state.userId} results={this.state.searchResults}/>,
       <Likes results={this.state.userLikes} /> // loginEmail={this.state.loginEmail} userLikes={this.state.UserLikes} passes null
     ]
 
@@ -122,6 +122,7 @@ class NavigationBar extends React.Component {
     this.searchTermButtonClicked = this.searchTermButtonClicked.bind(this);
     this.getSearchResult = this.getSearchResult.bind(this);
     this.logout = this.logout.bind(this);
+    this.clearSearch = this.clearSearch.bind(this);
     this.state = {
       searchTerm: "",
       searchResults: [],
@@ -138,13 +139,20 @@ class NavigationBar extends React.Component {
       <GeneralButton 
         value={route} 
         className="nav-item btn btn-link nav-link" 
-        onClick={() => this.menuButtonClicked(route)} 
+        onClick={() => {
+          this.menuButtonClicked(route);
+          this.clearSearch();
+        }}
       />
         //when the menu button is clicked, we pass the route to the function changePage to change the page in App
         //This is a function callback, closure 
         //it should only call the function when the button is clicked, and allows us to pass a function
         // otherwise this function would be called immediately if used this.menuButtonClicked
     )
+  }
+
+  clearSearch() {
+    this.setState({searchTerm: ""})
   }
 
   renderLogoutButton(route) {
@@ -264,7 +272,7 @@ class NavigationBar extends React.Component {
             </ul>
           </div>
 
-          <p style={{'padding': '0px 40px 0px 0px'}}>Welcome back, {this.props.loginEmail}, {this.props.userId} </p>
+          <p style={{'padding': '0px 40px 0px 0px'}}>Welcome back, {this.props.loginEmail} </p>
   
           <form className="form-inline">
           <input 
@@ -295,6 +303,8 @@ class SearchResult extends React.Component {
   constructor(props) {
     super(props);   
     this.renderResultsData = this.renderResultsData.bind(this); 
+    this.likeButtonClicked = this.likeButtonClicked.bind(this);
+    this.addUserLike = this.addUserLike.bind(this);
   }
 
   //Structures results into output for endpoint 
@@ -334,6 +344,35 @@ class SearchResult extends React.Component {
         </div>
       </div>
     )
+  }
+
+  likeButtonClicked(e) {
+    e.preventDefault()
+    if (this.props.userId == null) {
+      alert("Please login to like a restaurant")
+    } else {
+      this.addUserLike(this.props.userId, e.currentTarget.value) //userid, ttxid
+    }
+    // console.log(e.currentTarget.value, this.props.userId)
+  }
+
+  addUserLike(userid, ttxid) {
+    console.log("nothing")
+    axios.post('/addUserLike',{
+      userid: userid,
+      ttxid: ttxid
+    })
+    .then(response => {
+      // console.log("response:" + response.data['liked'])
+      if (response.data['liked']) {
+        alert('Thanks for liking this business! Check your like page.')
+      } else {
+        alert('You\'ve already liked this business. Check your like page.')
+      }
+    })
+    .catch(error => {
+      console.log(error)
+    })
   }
 
   render() {
@@ -1074,7 +1113,6 @@ class Likes extends React.Component {
             <div className="container">
               <h1>Likes</h1>
               <hr />
-              <div className="center">Like Page</div>
               <div className="center">{this.props.userId}</div>
               <div className="center">{this.renderResultsData()}</div>
             </div>
