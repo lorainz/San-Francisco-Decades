@@ -561,7 +561,7 @@ class DecadeSelector extends React.Component {
 
   renderCategories() {
     return (
-      <div>
+      <div style={{'padding': '10px 10px 10px 10px'}}>
         <select id="category" onChange={this.changeCategory} value={this.state.category}>
           <option value="Select category:" disabled>Select category:</option>
           {this.state.categories.map((category) =>
