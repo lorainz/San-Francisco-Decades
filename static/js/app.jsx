@@ -1,3 +1,18 @@
+//Customize your Notification  
+const config = {
+  timeout: 5000,
+  positionY: "bottom", // top or bottom
+  positionX: "right", // right left, center
+  distanceY: 20, // Integer value
+  distanceX: 20, // Integer value
+  zIndex: 100, // Integer value
+  theme: "ligh", // default, ligh or  dark (leave empty for "default" theme)
+  duplicates: true // true or false - by default it's false
+};
+
+//Create a new Toastmejs class instance
+const mytoast = new Toastme(config);
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -46,12 +61,16 @@ class App extends React.Component {
       userId: userId,
     }); 
     this.changePage('About', [])
-    console.log("CHANGE APP LOGIN :" + this.state.loginEmail, this.state.userId) // test
+
+    toastme.success("You've been logged in, " + loginEmail)
+
+    // console.log("CHANGE APP LOGIN :" + this.state.loginEmail, this.state.userId) // test
     this.getUserLikes(this.state.userId)
+
   }
 
   getUserLikes() {
-    console.log('get likes for user: ' + this.state.userId)
+    // console.log('get likes for user: ' + this.state.userId)
 
     const urlString = '/getUserLikes?userid=' + this.state.userId
     axios.get(urlString)
@@ -61,7 +80,7 @@ class App extends React.Component {
         userLikes: response.data['userlikes'],
         userLikesList: response.data['userlikeslist']
       },
-        () => console.log(this.state.userLikesList)
+        // () => console.log(this.state.userLikesList)
       )
     })
     .catch(error => {console.log(error)})
@@ -82,6 +101,8 @@ class App extends React.Component {
       userId: null,
       userLikes: null
     })
+
+    toastme.success("You've been logged out.")
   }
 
   render() {
@@ -185,7 +206,6 @@ class NavigationBar extends React.Component {
 
   handleSearchTermChange(event) {
     this.setState({searchTerm: event.target.value});
-    // console.log(this.state.searchTerm);
   }
 
   searchTermButtonClicked(e, route) {
@@ -349,7 +369,8 @@ class SearchResult extends React.Component {
   likeButtonClicked(e) {
     e.preventDefault()
     if (this.props.userId == null) {
-      alert("Please login to like a restaurant")
+      // alert("Please login to like a restaurant")
+      toastme.warning("Please login to like a restaurant")
     } else {
       this.addUserLike(this.props.userId, e.currentTarget.value) //userid, ttxid
     }
@@ -597,7 +618,8 @@ class DecadeSelector extends React.Component {
   likeButtonClicked(e) {
     e.preventDefault()
     if (this.props.userId == null) {
-      alert("Please login to like a restaurant")
+      // alert("Please login to like a restaurant")
+      toastme.warning("Please login to like a restaurant")
     } else {
       this.addUserLike(this.props.userId, e.currentTarget.value) //userid, ttxid
     }
@@ -755,7 +777,8 @@ class RandomGenerator extends React.Component {
   likeButtonClicked(e) {
     e.preventDefault()
     if (this.props.userId == null) {
-      alert("Please login to like a restaurant")
+      // alert("Please login to like a restaurant")
+      toastme.warning("Please login to like a restaurant")
     } else {
       this.addUserLike(this.props.userId, e.currentTarget.value) //userid, ttxid
     }
@@ -867,8 +890,8 @@ class Login extends React.Component {
         message: response.data['message'],
         loginEmail: response.data['email']
       })
-      console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'], response.data['email'])
-      console.log("state: ", this.state.loggedIn, this.state.userId, this.state.message)
+      // console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'], response.data['email'])
+      // console.log("state: ", this.state.loggedIn, this.state.userId, this.state.message)
       this.props.changeLogin(this.state.loginEmail, this.state.userId)
 
     })
