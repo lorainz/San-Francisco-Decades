@@ -1,0 +1,36 @@
+CREATING TABLES FOR PROMOTIONS IN PSQL
+
+
+PSQL businesses
+
+CREATE TABLE promotions (
+   promotion_id serial PRIMARY KEY,
+   name VARCHAR (50) NOT NULL,
+   description VARCHAR (500) NOT NULL
+);
+
+CREATE TABLE user_promotions (
+  user_promotion_id serial PRIMARY KEY,    
+  user_id INTEGER NOT NULL REFERENCES users(user_id),
+  promotion_id INTEGER NOT NULL REFERENCES promotions(promotion_id),
+  notified BOOLEAN DEFAULT FALSE
+);
+
+INSERT INTO promotions (
+    name,
+    description
+)
+VALUES
+    (
+        'First time user',
+        'Thank the user for using the website and provide a small instruction blurb.'
+    );
+
+INSERT INTO user_promotions(user_id,promotion_id)
+SELECT user_id, '1'
+FROM users;
+
+SELECT up.*, u.email, p.name
+FROM user_promotions up
+LEFT JOIN users u on u.user_id = up.user_id
+LEFT JOIN promotions p on p.promotion_id = up.promotion_id;
