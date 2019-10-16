@@ -216,7 +216,7 @@ class UserPromotion(db.Model):
 
     def __repr__(self):
         """Provide helpful representation when printed."""
-        return f"<like_id={self.like_id} user_id={self.user_id} ttxid={self.ttxid}>"
+        return f"<user_promotion_id={self.user_promotion_id} user_id={self.user_id} promotion_id={self.promotion_id} is_valid={self.is_valid}>"
 
 ##############################################################################
 # Helper functions

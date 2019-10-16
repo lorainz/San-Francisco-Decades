@@ -355,6 +355,7 @@ def login():
     #CHECK FOR APPLICABLE PROMOTIONS
     promotions = (db.session
                 .query(
+                Promotion.promotion_id,
                 Promotion.name,
                 UserPromotion.is_valid
                 )
@@ -367,7 +368,10 @@ def login():
 
     promo_dict = {}
     for promo in promotions:
-        promo_dict[promo[0]] = promo[1]
+        promo_dict[promo[1]] = {
+            'is_valid': promo[2],
+            'promotion_id': promo[0]
+        }
 
     print("converted promo", promo_dict)
 
@@ -399,6 +403,33 @@ def login():
                     'email': registered_user.email,
                     'promotions': promo_dict
                 })
+
+    return jsonify([None, False])
+
+@app.route('/promotions', methods=['GET', 'POST'])
+def promotions():
+    """change promotion status for users"""
+    if request.method == "POST":
+            # print(request.data); # returns byte string literal
+            response = request.json
+            print(response); # json
+            user_id = request.json['userId']
+            promotion_id = request.json['promotionId']
+            print(user_id, promotion_id)
+
+    user_promotions = UserPromotion.query.filter_by(user_id=user_id, promotion_id=promotion_id).first()
+    print(user_promotions)
+    user_promotions.is_valid = False
+
+    user_promotions = UserPromotion.query.filter_by(user_id=user_id, promotion_id=promotion_id).first()
+    print(user_promotions)
+
+    db.session.commit()
+
+    return jsonify({
+        'is_valid': user_promotions.is_valid
+    })
+
 
     return jsonify([None, False])
 

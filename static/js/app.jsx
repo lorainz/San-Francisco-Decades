@@ -892,9 +892,9 @@ class Login extends React.Component {
         loginEmail: response.data['email'],
         promotions: response.data['promotions']
       }, 
-        () => {if (this.state.promotions['First time user']){
+        () => {if (this.state.promotions['First time user']['is_valid']){
           toastme.success("FIRST TIME USER! WELCOME!")
-
+          this.changePromotion(this.state.promotions['First time user']['promotion_id'])
       }})
       // console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'], response.data['email'])
       // console.log("state: ", this.state.loggedIn, this.state.userId, this.state.message)
@@ -906,11 +906,18 @@ class Login extends React.Component {
     })
   }
 
-  // updateLoginStatus(login) {
-  //   // console.log("before" + login)
-  //   this.props.changeLogin(login)
-  //   // console.log("after" + login)
-  // }
+  changePromotion(id) {
+    axios.post('/promotions',{
+      userId: this.state.userId,
+      promotionId: id,
+    })
+    .then(response => {
+      console.log(response.data)
+    })
+    .catch(error => { 
+      console.log(error)
+    })
+  }
 
   menuButtonClicked(route) {
     this.props.changePage(route) 
