@@ -177,6 +177,46 @@ class Like(db.Model):
         """Provide helpful representation when printed."""
         return f"<like_id={self.like_id} user_id={self.user_id} ttxid={self.ttxid}>"
 
+class Promotion(db.Model):
+    """promotions"""
+
+    __tablename__ = "promotions"
+
+    promotion_id = db.Column(db.Integer, 
+                            autoincrement=True, 
+                            primary_key=True)
+    name = db.Column(db.String(100), 
+                        nullable=False)
+    description = db.Column(db.String(500), 
+                    nullable=False)
+
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+        return f"<promotion_id={self.promotion_id} name={self.name} description={self.description}>"
+
+class UserPromotion(db.Model):
+    """user promotions"""
+
+    __tablename__ = "user_promotions"
+
+    user_promotion_id = db.Column(db.Integer, 
+                            autoincrement=True, 
+                            primary_key=True)
+    user_id = db.Column(db.Integer, 
+                        db.ForeignKey('users.user_id'), #foreign key
+                        nullable=False)
+    promotion_id = db.Column(db.Integer, 
+                            db.ForeignKey('promotions.promotion_id'), #foreign key
+                            nullable=False)
+    is_valid = db.Column(db.Boolean,
+                            nullable=False,
+                            default=True)
+
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+        return f"<like_id={self.like_id} user_id={self.user_id} ttxid={self.ttxid}>"
 
 ##############################################################################
 # Helper functions

@@ -9,7 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.exc import MultipleResultsFound
 from sqlalchemy import func #user func.lower for queries
 
-from model import Business, Review, User, Like, connect_to_db, db
+from model import Business, Review, User, Like, Promotion, UserPromotion, connect_to_db, db
 from secret import app_key
 
 import json
@@ -352,13 +352,33 @@ def login():
     registered_user = User.query.filter(User.email == email).first()
     print(registered_user.email, registered_user.user_id, email)
 
+    #CHECK FOR APPLICABLE PROMOTIONS
+    promotions = (db.session
+                .query(
+                Promotion.name,
+                UserPromotion.is_valid
+                )
+                .filter(
+                UserPromotion.user_id == registered_user.user_id)
+                .all()
+                ) 
+
+    print("promotions", promotions)
+
+    promo_dict = {}
+    for promo in promotions:
+        promo_dict[promo[0]] = promo[1]
+
+    print("converted promo", promo_dict)
+
     if session.get('user_id', None) != None:
         # flash('You\'re already logged in')
         return jsonify({
             'user_id': session['user_id'], 
             'logged_in': True,
             'message': 'You\'re already logged in',
-            'email': registered_user.email
+            'email': registered_user.email,
+            'promotions': promo_dict
         })
     else:
         if registered_user == None: 
@@ -376,7 +396,8 @@ def login():
                     'user_id': session['user_id'], 
                     'logged_in': True,
                     'message': 'Successful login!',
-                    'email': registered_user.email
+                    'email': registered_user.email,
+                    'promotions': promo_dict
                 })
 
     return jsonify([None, False])
@@ -469,7 +490,6 @@ def addUserLike():
 def add_user_like(user_id, ttxid):
     new_user_like = Like(user_id=user_id, ttxid=ttxid)
     db.session.add(new_user_like)
-    # flash("Registration success. Please log in.")
     db.session.commit()
     print(str(user_id) + " " + ttxid + "SUCCESS")
 

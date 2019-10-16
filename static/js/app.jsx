@@ -62,7 +62,7 @@ class App extends React.Component {
     }); 
     this.changePage('About', [])
 
-    toastme.success("You've been logged in, " + loginEmail)
+    // toastme.success("You've been logged in, " + loginEmail)
 
     // console.log("CHANGE APP LOGIN :" + this.state.loginEmail, this.state.userId) // test
     this.getUserLikes(this.state.userId)
@@ -833,6 +833,7 @@ class Login extends React.Component {
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
     this.loginUser = this.loginUser.bind(this);
     this.loginUserPost = this.loginUserPost.bind(this);
+    this.changePromotion = this.changePromotion.bind(this);
     // this.updateLoginStatus = this.updateLoginStatus.bind(this)
     this.state = {
       email: "",
@@ -888,8 +889,13 @@ class Login extends React.Component {
         loggedIn: response.data['logged_in'],
         userId: response.data['user_id'],
         message: response.data['message'],
-        loginEmail: response.data['email']
-      })
+        loginEmail: response.data['email'],
+        promotions: response.data['promotions']
+      }, 
+        () => {if (this.state.promotions['First time user']){
+          toastme.success("FIRST TIME USER! WELCOME!")
+
+      }})
       // console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'], response.data['email'])
       // console.log("state: ", this.state.loggedIn, this.state.userId, this.state.message)
       this.props.changeLogin(this.state.loginEmail, this.state.userId)
