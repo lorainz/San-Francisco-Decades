@@ -13,6 +13,12 @@ const config = {
 //Create a new Toastmejs class instance
 const mytoast = new Toastme(config);
 
+// toastme.default("This is a 'default' notification")
+// toastme.success("This is a 'success' notification")
+// toastme.error("This is an 'error' notification")
+// toastme.warning("This is a 'warning' notification")
+// toastme.info("This is an 'info' notification")
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -893,7 +899,7 @@ class Login extends React.Component {
         promotions: response.data['promotions']
       }, 
         () => {if (this.state.promotions['First time user']['is_valid']){
-          toastme.success("FIRST TIME USER! WELCOME!")
+          toastme.default("FIRST TIME USER! WELCOME!")
           this.changePromotion(this.state.promotions['First time user']['promotion_id'])
       }})
       // console.log("RESPONSE: ", response.data['user_id'], response.data['logged_in'], response.data['message'], response.data['email'])

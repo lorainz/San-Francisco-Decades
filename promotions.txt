@@ -15,8 +15,9 @@ VALUES
     );
 
 INSERT INTO user_promotions(user_id,promotion_id, is_valid)
-SELECT user_id, '1', 'false'
+SELECT user_id, '1', 'true'
 FROM users;
+
 
 SELECT up.*, u.email, p.name
 FROM user_promotions up
@@ -26,3 +27,20 @@ LEFT JOIN promotions p on p.promotion_id = up.promotion_id;
 
 UPDATE user_promotions
 SET is_valid = True;
+
+
+FOR ADDING NEW PROMOTIONS
+
+INSERT INTO promotions (
+    name,
+    description
+)
+VALUES
+    (
+        'Promotion test 2',
+        'For testing purposes.'
+    );
+
+INSERT INTO user_promotions(user_id,promotion_id, is_valid)
+SELECT user_id, '2', 'true'
+FROM users;

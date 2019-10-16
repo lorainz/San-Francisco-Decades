@@ -459,23 +459,44 @@ def register():
         # print('GET EMAIL AND PASSWORD')
         # print(request.data); # returns byte string literal
         response = request.json
-        print(response); # json
+        # print(response); # json
         email = request.json['email']
         password = request.json['password']
-        print(email, password)
+        # print(email, password)
 
     registered_user = User.query.filter(User.email == email).first()
-    print(registered_user, email)
+    # print(registered_user, email)
 
+    #ADD PROMOTIONS FOR NEW USERS
+    promotions = (db.session
+                    .query(Promotion.promotion_id, Promotion.name,)
+                    .all()
+                    ) 
+    # print("promos", promotions)
+    # print("user_id", registered_user.user_id)
+
+    #RETURN JSON
     if registered_user == None:
         register_user(email, password)
+
+        registered_user = User.query.filter(User.email == email).first()
+
+        for promo in promotions:
+            add_promotions(promo[0], registered_user.user_id)
+
         return jsonify([True, "Registration success. Please proceed to login page.", email, password])
+        # print("loop through promotions")
+        
     elif email == registered_user.email and  password == registered_user.password:
         # flash("Email already in use. Please log in.")
         return jsonify([True, "Email already in use. Please log in.", email, password])
         
-    # return jsonify(response)
 
+def add_promotions(promotion_id, user_id):
+    user_promotion = UserPromotion(user_id=user_id, promotion_id=promotion_id, is_valid=True)
+    db.session.add(user_promotion)
+    db.session.commit()
+    print("added promotion ", promotion_id, " for user ", user_id)
 
 def register_user(email, password):
     new_user = User(email=email, password=password)
